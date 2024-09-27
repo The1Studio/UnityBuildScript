@@ -1,0 +1,22 @@
+{
+  "name": "com.theone.foundation.buildscript",
+  "displayName": "The One Unity Build Script",
+  "description": "Unity build script that use to build for multiple platform.",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/The1Studio/UnityBuildScript"
+  },
+  "author": {
+    "name": "TheOne - Foundation",
+    "email": "tuha263@gmail.com"
+  },
+  "dependencies": {
+    "com.unity.addressables": "lastest"
+  },
+  "keywords": [
+    "Tools"
+  ]
+}
