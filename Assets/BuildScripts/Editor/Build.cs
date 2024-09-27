@@ -12,6 +12,8 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.Compilation;
 #if UNITY_WEBGL
 using UnityEditor.WebGL;
+#else
+using UnityEditor.Android;
 #endif
 using UnityEngine;
 
