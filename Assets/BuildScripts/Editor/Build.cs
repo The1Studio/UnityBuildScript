@@ -336,7 +336,7 @@ public static class Build
 #if PRODUCTION
                 PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
 #else
-                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.FullWithStacktrace;           
+                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;           
 #endif
 #if UNITY_2022_1_OR_NEWER
                 PlayerSettings.WebGL.initialMemorySize = 64;
