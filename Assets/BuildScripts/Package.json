@@ -14,7 +14,7 @@
     "email": "tuha263@gmail.com"
   },
   "dependencies": {
-    "com.unity.addressables": "latest"
+    "com.unity.addressables": "1.22.2"
   },
   "keywords": [
     "Tools"
