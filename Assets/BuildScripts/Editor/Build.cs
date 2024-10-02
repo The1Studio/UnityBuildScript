@@ -333,9 +333,6 @@ public static class Build
                 PlayerSettings.runInBackground = false;
                 PlayerSettings.WebGL.powerPreference = WebGLPowerPreference.Default;
                 PlayerSettings.WebGL.dataCaching = true;
-#if PRODUCTION
-                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
-#else
                 PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;           
 #endif
 #if UNITY_2022_1_OR_NEWER
