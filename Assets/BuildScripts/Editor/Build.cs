@@ -334,7 +334,6 @@ public static class Build
                 PlayerSettings.WebGL.powerPreference = WebGLPowerPreference.Default;
                 PlayerSettings.WebGL.dataCaching = true;
                 PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;           
-#endif
 #if UNITY_2022_1_OR_NEWER
                 PlayerSettings.WebGL.initialMemorySize = 64;
                 UserBuildSettings.codeOptimization = WasmCodeOptimization.DiskSize;
