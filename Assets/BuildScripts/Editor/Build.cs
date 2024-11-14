@@ -329,6 +329,7 @@ public static class Build
                 PlayerSettings.runInBackground = false;
                 PlayerSettings.WebGL.powerPreference = WebGLPowerPreference.Default;
                 PlayerSettings.WebGL.dataCaching = true;
+                PlayerSettings.WebGL.nameFilesAsHashes = true;
 #if PRODUCTION
                 PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;     
 #else
@@ -336,7 +337,7 @@ public static class Build
 #endif      
 #if UNITY_2022_1_OR_NEWER
                 PlayerSettings.WebGL.initialMemorySize = 64;
-                UserBuildSettings.codeOptimization = WasmCodeOptimization.DiskSize;
+                UserBuildSettings.codeOptimization = WasmCodeOptimization.DiskSizeLTO;
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
                 PlayerSettings.WebGL.showDiagnostics = false;
 #if FB_INSTANT || PRODUCT
