@@ -69,13 +69,13 @@ public static class Build
     private static BuildTargetInfo[] GetBuildTargetInfoFromString(string platforms)
     {
         return platforms.Split(';').Select(platformText => Targets.Single(t => t.Platform == platformText))
-                        .ToArray();
+            .ToArray();
     }
 
     private static BuildTargetInfo[] GetBuildTargetInfoFromString(IEnumerable<string> platforms)
     {
         return platforms.Select(platformText => Targets.Single(t => t.Platform == platformText))
-                        .ToArray();
+            .ToArray();
     }
 
     public static void SetScriptingDefineSymbols()
@@ -113,21 +113,21 @@ public static class Build
         AndroidExternalToolsSettings.gradlePath = null;
 #endif
         // Grab the CSV platforms string
-        var platforms             = string.Join(";", Targets.Select(t => t.Platform));
-        var scriptingBackend      = ScriptingImplementation.Mono2x;
-        var args                  = Environment.GetCommandLineArgs();
-        var buildOptions          = BuildOptions.CompressWithLz4HC | BuildOptions.CleanBuildCache;
-        var outputPath            = "template.exe";
-        var buildAppBundle        = false;
-        var packageName           = "";
-        var keyStoreFileName      = "the1_googleplay.keystore";
-        var keyStoreAliasName     = "theonestudio";
-        var keyStorePassword      = "tothemoon";
-        var keyStoreAliasPassword = "tothemoon";
-        var iosTargetOSVersion    = "13.0";
-        var iosSigningTeamId      = "";
+        var platforms                  = string.Join(";", Targets.Select(t => t.Platform));
+        var scriptingBackend           = ScriptingImplementation.Mono2x;
+        var args                       = Environment.GetCommandLineArgs();
+        var buildOptions               = BuildOptions.CompressWithLz4HC | BuildOptions.CleanBuildCache;
+        var outputPath                 = "template.exe";
+        var buildAppBundle             = false;
+        var packageName                = "";
+        var keyStoreFileName           = "the1_googleplay.keystore";
+        var keyStoreAliasName          = "theonestudio";
+        var keyStorePassword           = "tothemoon";
+        var keyStoreAliasPassword      = "tothemoon";
+        var iosTargetOSVersion         = "13.0";
+        var iosSigningTeamId           = "";
         var remoteAddressableBuildPath = "";
-        var remoteAddressableLoadPath = "";
+        var remoteAddressableLoadPath  = "";
 
         PlayerSettings.Android.useCustomKeystore = false;
         for (var i = 0; i < args.Length; ++i)
@@ -141,8 +141,8 @@ public static class Build
                     scriptingBackend = args[++i].ToLowerInvariant() switch
                     {
                         "il2cpp" => ScriptingImplementation.IL2CPP,
-                        "mono"   => ScriptingImplementation.Mono2x,
-                        _        => throw new Exception("Unknown scripting backend")
+                        "mono" => ScriptingImplementation.Mono2x,
+                        _ => throw new Exception("Unknown scripting backend")
                     };
                     break;
                 case "-development":
@@ -187,9 +187,11 @@ public static class Build
             }
         }
 
-            PlayerSettings.SetStackTraceLogType(LogType.Log,     StackTraceLogType.None);
+        PlayerSettings.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
 #if ONDEMAND_ASSET
             PlayerSettings.Android.splitApplicationBinary = true;
+#else
+            PlayerSettings.Android.splitApplicationBinary = false;
 #endif
 #if PRODUCTION
             PlayerSettings.SetStackTraceLogType(LogType.Assert,  StackTraceLogType.None);
@@ -199,7 +201,7 @@ public static class Build
         {
             AddressableBuildTool.CreateOrUpdateTheOneCDNProfile(remoteAddressableBuildPath, remoteAddressableLoadPath);
         }
-        
+
         if (buildAppBundle)
         {
             SetUpAndroidKeyStore(keyStoreFileName, keyStorePassword, keyStoreAliasName, keyStoreAliasPassword);
@@ -248,7 +250,7 @@ public static class Build
     {
         PlayerSettings.Android.minSdkVersion    = AndroidSdkVersions.AndroidApiLevel24;
         PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
-        
+
         BuildTools.ResetBuildSettings();
         EditorUserBuildSettings.buildAppBundle = buildAppBundle;
 
@@ -256,7 +258,7 @@ public static class Build
         Console.WriteLine("Building Targets: " +
                           string.Join(", ",
                               buildTargetInfos.Select(target => target.Platform)
-                                              .ToArray())); // Log which targets we're gonna build
+                                  .ToArray())); // Log which targets we're gonna build
 
         var errors = false;
         foreach (var platform in buildTargetInfos)
@@ -285,7 +287,8 @@ public static class Build
             {
                 scenes           = SCENES,
                 locationPathName = Path.GetFullPath($"../Build/Client/{platform.Platform}/{outputPath}"),
-                target           = platform.BuildTarget, options = options
+                target           = platform.BuildTarget,
+                options          = options
             };
 
             // Perform the build
@@ -417,12 +420,12 @@ public static class Build
     private static string Prefix(LogType type) =>
         type switch
         {
-            LogType.Assert    => "A",
-            LogType.Error     => "E",
+            LogType.Assert => "A",
+            LogType.Error => "E",
             LogType.Exception => "X",
-            LogType.Log       => "L",
-            LogType.Warning   => "W",
-            _                 => "????"
+            LogType.Log => "L",
+            LogType.Warning => "W",
+            _ => "????"
         };
 
     /// <summary>
@@ -431,11 +434,11 @@ public static class Build
     private static void SetApplicationVersion()
     {
         // Bundle version will be use for some third party like Backtrace, DeltaDNA,...
-        PlayerSettings.bundleVersion             = GameVersion.Version;
+        PlayerSettings.bundleVersion = GameVersion.Version;
 #if UNITY_ANDROID
         PlayerSettings.Android.bundleVersionCode = GameVersion.BuildNumber;
 #elif UNITY_IOS
-        PlayerSettings.iOS.buildNumber           = GameVersion.BuildNumber.ToString();
+        PlayerSettings.iOS.buildNumber = GameVersion.BuildNumber.ToString();
 #endif
     }
 
