@@ -188,6 +188,9 @@ public static class Build
         }
 
             PlayerSettings.SetStackTraceLogType(LogType.Log,     StackTraceLogType.None);
+#if ONDEMAND_ASSET
+            PlayerSettings.Android.splitApplicationBinary = true;
+#endif
 #if PRODUCTION
             PlayerSettings.SetStackTraceLogType(LogType.Assert,  StackTraceLogType.None);
             PlayerSettings.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
