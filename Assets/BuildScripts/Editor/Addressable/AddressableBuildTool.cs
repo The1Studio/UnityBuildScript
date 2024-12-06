@@ -27,6 +27,7 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"Build addressable");
             Console.WriteLine($"--------------------");
 #if ONDEMAND_ASSET
+            PlayerSettings.Android.splitApplicationBinary = true;
             var setting = AddressableAssetSettingsDefaultObject.Settings;
             var padBuildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPlayAssetDelivery);
             if (padBuildScript == null)
@@ -37,6 +38,7 @@ namespace BuildScripts.Editor.Addressable
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
             EditorUtility.SetDirty(setting);
 #else
+            PlayerSettings.Android.splitApplicationBinary = false;
             var setting        = AddressableAssetSettingsDefaultObject.Settings;
             var padBuildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPackedMode);
             if (padBuildScript == null)
