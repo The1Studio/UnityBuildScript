@@ -37,6 +37,8 @@ namespace BuildScripts.Editor.Addressable
             }
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
             EditorUtility.SetDirty(setting);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
 #else
             PlayerSettings.Android.splitApplicationBinary = false;
             var setting        = AddressableAssetSettingsDefaultObject.Settings;
@@ -48,6 +50,8 @@ namespace BuildScripts.Editor.Addressable
             }
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
             EditorUtility.SetDirty(setting);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
 #endif
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
             var success = string.IsNullOrEmpty(result.Error);
