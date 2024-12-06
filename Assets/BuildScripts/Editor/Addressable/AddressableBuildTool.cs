@@ -3,7 +3,11 @@ namespace BuildScripts.Editor.Addressable
     using System;
     using UnityEditor;
     using UnityEditor.AddressableAssets;
+#if ONDEMAND_ASSET
+    using UnityEditor.AddressableAssets.Android;
+#endif
     using UnityEditor.AddressableAssets.Build;
+    using UnityEditor.AddressableAssets.Build.DataBuilders;
     using UnityEditor.AddressableAssets.Settings;
     using UnityEditor.AddressableAssets.Settings.GroupSchemas;
     using UnityEngine;
@@ -22,6 +26,27 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Build addressable");
             Console.WriteLine($"--------------------");
+#if ONDEMAND_ASSET
+            var setting = AddressableAssetSettingsDefaultObject.Settings;
+            var padBuildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPlayAssetDelivery);
+            if (padBuildScript == null)
+            {
+                Debug.LogError("Play Asset Delivery build script not found.");
+                throw new Exception("Play Asset Delivery build script not found.");
+            }
+            setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
+            EditorUtility.SetDirty(setting);
+#else
+            var setting        = AddressableAssetSettingsDefaultObject.Settings;
+            var padBuildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPackedMode);
+            if (padBuildScript == null)
+            {
+                Debug.LogError("BuildScriptPackedMode not found.");
+                throw new Exception("BuildScriptPackedMode not found.");
+            }
+            setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
+            EditorUtility.SetDirty(setting);
+#endif
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
             var success = string.IsNullOrEmpty(result.Error);
             if (!success)
