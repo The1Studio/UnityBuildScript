@@ -6,7 +6,9 @@
         "Unity.Addressables.Editor",
         "Unity.ScriptableBuildPipeline.Editor",
         "UniTask.Editor",
-        "UniTask"
+        "UniTask",
+        "Unity.Addressables.Android",
+        "Unity.Addressables.Android.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -17,6 +19,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.addressables.android",
+            "expression": "",
+            "define": "PAD"
+        }
+    ],
     "noEngineReferences": false
 }

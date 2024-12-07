@@ -3,7 +3,7 @@ namespace BuildScripts.Editor.Addressable
     using System;
     using UnityEditor;
     using UnityEditor.AddressableAssets;
-#if ONDEMAND_ASSET
+#if PAD
     using UnityEditor.AddressableAssets.Android;
 #endif
     using UnityEditor.AddressableAssets.Build;
@@ -11,6 +11,7 @@ namespace BuildScripts.Editor.Addressable
     using UnityEditor.AddressableAssets.Settings;
     using UnityEditor.AddressableAssets.Settings.GroupSchemas;
     using UnityEngine;
+    using UnityEngine.AddressableAssets.Android;
 
     public class AddressableBuildTool
     {
@@ -49,6 +50,9 @@ namespace BuildScripts.Editor.Addressable
                 throw new Exception("BuildScriptPackedMode not found.");
             }
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
+            
+            ChangeDeliveryTypeFromOnDemandToInstallTime();
+            
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -85,6 +89,26 @@ namespace BuildScripts.Editor.Addressable
                 }
             }
         }
+        
+        #if PAD
+        [MenuItem("TheOne/Change from OnDemand to InstallTime")]
+        public static void ChangeDeliveryTypeFromOnDemandToInstallTime()
+        {
+            // Access the addressable asset settings
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+
+            // Iterate over all groups
+            foreach (var group in settings.groups)
+            {
+                // Set the compression type to LZMA for each group
+                var schema = group.GetSchema<PlayAssetDeliverySchema>();
+                if (schema != null && schema.AssetPackDeliveryType == DeliveryType.OnDemand)
+                {
+                    schema.AssetPackDeliveryType = DeliveryType.InstallTime;
+                }
+            }
+        }
+        #endif
         
         public static void CreateOrUpdateTheOneCDNProfile(string buildPath, string loadPath)
         {
