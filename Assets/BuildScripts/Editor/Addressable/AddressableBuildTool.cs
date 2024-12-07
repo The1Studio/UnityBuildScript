@@ -50,8 +50,7 @@ namespace BuildScripts.Editor.Addressable
                 throw new Exception("BuildScriptPackedMode not found.");
             }
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
-            
-            ChangeDeliveryTypeFromOnDemandToInstallTime();
+            ChangeDeliveryTypeFromToNone();
             
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
@@ -92,7 +91,7 @@ namespace BuildScripts.Editor.Addressable
         
         #if PAD
         [MenuItem("TheOne/Change from OnDemand to InstallTime")]
-        public static void ChangeDeliveryTypeFromOnDemandToInstallTime()
+        public static void ChangeDeliveryTypeFromToNone()
         {
             // Access the addressable asset settings
             var settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -102,9 +101,9 @@ namespace BuildScripts.Editor.Addressable
             {
                 // Set the compression type to LZMA for each group
                 var schema = group.GetSchema<PlayAssetDeliverySchema>();
-                if (schema != null && schema.AssetPackDeliveryType == DeliveryType.OnDemand)
+                if (schema != null)
                 {
-                    schema.AssetPackDeliveryType = DeliveryType.InstallTime;
+                    schema.AssetPackDeliveryType = DeliveryType.None;
                 }
             }
         }
