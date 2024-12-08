@@ -103,7 +103,7 @@ namespace BuildScripts.Editor.Addressable
                 var schema = group.GetSchema<PlayAssetDeliverySchema>();
                 if (schema != null)
                 {
-                    schema.AssetPackDeliveryType = DeliveryType.None;
+                    schema.AssetPackDeliveryType = DeliveryType.InstallTime;
                 }
             }
         }
