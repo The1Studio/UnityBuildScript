@@ -27,35 +27,27 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Build addressable");
             Console.WriteLine($"--------------------");
+            
+            var setting = AddressableAssetSettingsDefaultObject.Settings;
 #if ONDEMAND_ASSET
             PlayerSettings.Android.splitApplicationBinary = true;
-            var setting = AddressableAssetSettingsDefaultObject.Settings;
-            var padBuildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPlayAssetDelivery);
-            if (padBuildScript == null)
-            {
-                Debug.LogError("Play Asset Delivery build script not found.");
-                throw new Exception("Play Asset Delivery build script not found.");
-            }
-            setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
-            EditorUtility.SetDirty(setting);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            var buildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPlayAssetDelivery);
 #else
             PlayerSettings.Android.splitApplicationBinary = false;
-            var setting        = AddressableAssetSettingsDefaultObject.Settings;
-            var padBuildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPackedMode);
-            if (padBuildScript == null)
+            var buildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPackedMode);
+            ChangeDeliveryTypeFromOnDemandToInstallTime();
+#endif
+            if (buildScript == null)
             {
-                Debug.LogError("BuildScriptPackedMode not found.");
                 throw new Exception("BuildScriptPackedMode not found.");
             }
-            setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(padBuildScript);
-            ChangeDeliveryTypeFromToNone();
+            setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(buildScript);
             
+            //Refresh
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-#endif
+            
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
             var success = string.IsNullOrEmpty(result.Error);
             if (!success)
@@ -87,11 +79,13 @@ namespace BuildScripts.Editor.Addressable
                     schema.UseUnityWebRequestForLocalBundles = false;
                 }
             }
+            
+            settings.SetDirty(AddressableAssetSettings.ModificationEvent.GroupSchemaModified, null, true, true);
         }
         
         #if PAD
         [MenuItem("TheOne/Change from OnDemand to InstallTime")]
-        public static void ChangeDeliveryTypeFromToNone()
+        public static void ChangeDeliveryTypeFromOnDemandToInstallTime()
         {
             // Access the addressable asset settings
             var settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -101,9 +95,10 @@ namespace BuildScripts.Editor.Addressable
             {
                 // Set the compression type to LZMA for each group
                 var schema = group.GetSchema<PlayAssetDeliverySchema>();
-                if (schema != null)
+                if (schema != null && schema.AssetPackDeliveryType == DeliveryType.OnDemand)
                 {
                     schema.AssetPackDeliveryType = DeliveryType.InstallTime;
+                    settings.SetDirty(AddressableAssetSettings.ModificationEvent.GroupSchemaModified, null, true, true);
                 }
             }
         }
