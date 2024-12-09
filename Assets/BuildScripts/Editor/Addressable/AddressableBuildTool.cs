@@ -5,13 +5,13 @@ namespace BuildScripts.Editor.Addressable
     using UnityEditor.AddressableAssets;
 #if PAD
     using UnityEditor.AddressableAssets.Android;
+    using UnityEngine.AddressableAssets.Android;
 #endif
     using UnityEditor.AddressableAssets.Build;
     using UnityEditor.AddressableAssets.Build.DataBuilders;
     using UnityEditor.AddressableAssets.Settings;
     using UnityEditor.AddressableAssets.Settings.GroupSchemas;
     using UnityEngine;
-    using UnityEngine.AddressableAssets.Android;
 
     public class AddressableBuildTool
     {
@@ -27,8 +27,8 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Build addressable");
             Console.WriteLine($"--------------------");
-            
             var setting = AddressableAssetSettingsDefaultObject.Settings;
+#if PAD
 #if ONDEMAND_ASSET
             PlayerSettings.Android.splitApplicationBinary = true;
             var buildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPlayAssetDelivery);
@@ -42,7 +42,7 @@ namespace BuildScripts.Editor.Addressable
                 throw new Exception("BuildScriptPackedMode not found.");
             }
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(buildScript);
-            
+#endif
             //Refresh
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
