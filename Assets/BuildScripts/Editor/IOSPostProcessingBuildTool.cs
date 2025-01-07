@@ -128,6 +128,8 @@ namespace BuildScripts.Editor
             // set build version
             rootDict.SetString("CFBundleVersion", GameVersion.BuildNumber.ToString());
 
+            rootDict.SetString("method", "app-store-connect");
+
             // allow insecure http IOS
             #if ALLOW_INSECURE_HTTP_LOAD
             try
