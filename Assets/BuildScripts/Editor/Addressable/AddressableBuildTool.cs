@@ -27,13 +27,15 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Build addressable");
             Console.WriteLine($"--------------------");
+            
             var setting = AddressableAssetSettingsDefaultObject.Settings;
+            //TODO disable it when find a case that need to split APK
+            PlayerSettings.Android.splitApplicationBinary = false; // Disable split APK
 #if PAD
 #if ONDEMAND_ASSET
             PlayerSettings.Android.splitApplicationBinary = true;
             var buildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPlayAssetDelivery);
 #else
-            PlayerSettings.Android.splitApplicationBinary = false;
             var buildScript = setting.DataBuilders.Find(builder => builder is BuildScriptPackedMode);
             ChangeDeliveryTypeFromOnDemandToInstallTime();
 #endif
