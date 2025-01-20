@@ -314,6 +314,14 @@ public static class Build
 #if !UNITY_2022_1_OR_NEWER
                 PlayerSettings.Android.minifyWithR8 = true;
 #endif
+#if UNITY_6000_0_OR_NEWER
+                PlayerSettings.Android.optimizedFramePacing = false;
+    #if !GAME_ACTIVITY
+                PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
+                #else
+                PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
+    #endif
+#endif
                 PlayerSettings.Android.minifyRelease = true;
                 PlayerSettings.Android.minifyDebug   = true;
                 PlayerSettings.SetManagedStrippingLevel(platform.BuildTargetGroup, ManagedStrippingLevel.High);
