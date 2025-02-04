@@ -43,9 +43,9 @@ namespace BuildScripts.Editor
             #if IRONSOURCE
             "InMobiSDK.xcframework",
             "AppLovinSDK.xcframework",
+            #endif
             #if ADJUST
             "AdjustSigSdk.framework",
-            #endif
             #endif
         };
 
