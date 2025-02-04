@@ -42,7 +42,10 @@ namespace BuildScripts.Editor
             "OMSDK_Appodeal.xcframework",
             #if IRONSOURCE
             "InMobiSDK.xcframework",
-            "AppLovinSDK.xcframework"
+            "AppLovinSDK.xcframework",
+            #if ADJUST
+            "AdjustSigSdk.framework",
+            #endif
             #endif
         };
 
