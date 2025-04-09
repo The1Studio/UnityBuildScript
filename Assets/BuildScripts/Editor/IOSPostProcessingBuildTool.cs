@@ -44,6 +44,9 @@ namespace BuildScripts.Editor
             "InMobiSDK.xcframework",
             "AppLovinSDK.xcframework",
             #endif
+            #if ADJUST
+            "AdjustSigSdk.framework",
+            #endif
         };
 
         #endregion
