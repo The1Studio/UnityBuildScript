@@ -17,8 +17,10 @@ namespace BuildScripts.Editor.Addressable
     {
         public static void BuildAddressable()
         {
-#if !THEONE_NO_LZMA
+#if !THEONE_NO_LZMA 
             SetAllGroupsToLZMA();
+#elif  UNITY_WEBGL
+            SetAllGroupsToLZ4();
 #endif
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Clean addressable");
@@ -67,6 +69,17 @@ namespace BuildScripts.Editor.Addressable
         [MenuItem("TheOne/Set All Groups to LZMA")]
         public static void SetAllGroupsToLZMA()
         {
+            SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode.LZMA);
+        }
+        
+        [MenuItem("TheOne/Set All Groups to LZ4")]
+        public static void SetAllGroupsToLZ4()
+        {
+            SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode.LZ4);
+        }
+
+        private static void SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode compressionMode)
+        {
             // Access the addressable asset settings
             var settings = AddressableAssetSettingsDefaultObject.Settings;
 
@@ -77,7 +90,7 @@ namespace BuildScripts.Editor.Addressable
                 var schema = group.GetSchema<BundledAssetGroupSchema>();
                 if (schema != null)
                 {
-                    schema.Compression                       = BundledAssetGroupSchema.BundleCompressionMode.LZMA;
+                    schema.Compression                       = compressionMode;
                     schema.UseUnityWebRequestForLocalBundles = false;
                 }
             }
