@@ -17,9 +17,9 @@ namespace BuildScripts.Editor.Addressable
     {
         public static void BuildAddressable()
         {
-#if !THEONE_NO_LZMA 
+#if !THEONE_NO_LZMA && !UNITY_WEBGL
             SetAllGroupsToLZMA();
-#elif  UNITY_WEBGL
+#elif
             SetAllGroupsToLZ4();
 #endif
             Console.WriteLine($"--------------------");
