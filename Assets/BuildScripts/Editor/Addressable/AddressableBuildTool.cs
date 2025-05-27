@@ -19,7 +19,7 @@ namespace BuildScripts.Editor.Addressable
         {
 #if !THEONE_NO_LZMA && !UNITY_WEBGL
             SetAllGroupsToLZMA();
-#elif
+#else
             SetAllGroupsToLZ4();
 #endif
             Console.WriteLine($"--------------------");
