@@ -31,6 +31,7 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"--------------------");
             
             var setting = AddressableAssetSettingsDefaultObject.Settings;
+#if  UNITY_6000_0_OR_NEWER
             //TODO disable it when find a case that need to split APK
             PlayerSettings.Android.splitApplicationBinary = false; // Disable split APK
 #if PAD
@@ -47,6 +48,8 @@ namespace BuildScripts.Editor.Addressable
             }
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(buildScript);
 #endif
+#endif
+            
             //Refresh
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
