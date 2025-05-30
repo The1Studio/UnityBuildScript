@@ -15,6 +15,11 @@ using UnityEditor.WebGL;
 using UnityEditor.Android;
 #endif
 using UnityEngine;
+#if UNITY_6000_0_OR_NEWER
+using Unity.Android.Types;
+using AndroidApplicationEntry = UnityEditor.AndroidApplicationEntry;
+using AndroidArchitecture = UnityEditor.AndroidArchitecture;
+#endif
 
 // ------------------------------------------------------------------------
 // https://docs.unity3d.com/Manual/CommandLineArguments.html
@@ -200,11 +205,19 @@ public static class Build
         if (buildAppBundle)
         {
             SetUpAndroidKeyStore(keyStoreFileName, keyStorePassword, keyStoreAliasName, keyStoreAliasPassword);
+#if UNITY_6000_0_OR_NEWER
+            UserBuildSettings.DebugSymbols.level = DebugSymbolLevel.Full;
+#else
             EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Debugging;
+#endif
         }
         else
         {
+#if UNITY_6000_0_OR_NEWER
+            UserBuildSettings.DebugSymbols.level = DebugSymbolLevel.None;
+#else
             EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Disabled;
+#endif
         }
 
         SetupIos(iosSigningTeamId, iosTargetOSVersion);
