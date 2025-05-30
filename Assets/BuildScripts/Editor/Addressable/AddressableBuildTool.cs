@@ -29,9 +29,9 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Build addressable");
             Console.WriteLine($"--------------------");
-            
+
             var setting = AddressableAssetSettingsDefaultObject.Settings;
-#if  UNITY_6000_0_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             //TODO disable it when find a case that need to split APK
             PlayerSettings.Android.splitApplicationBinary = false; // Disable split APK
 #if PAD
@@ -46,15 +46,16 @@ namespace BuildScripts.Editor.Addressable
             {
                 throw new Exception("BuildScriptPackedMode not found.");
             }
+
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(buildScript);
 #endif
 #endif
-            
+
             //Refresh
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            
+
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
             var success = string.IsNullOrEmpty(result.Error);
             if (!success)
@@ -68,18 +69,12 @@ namespace BuildScripts.Editor.Addressable
             Console.WriteLine($"Finish building addressable");
             Console.WriteLine($"--------------------");
         }
-        
+
         [MenuItem("TheOne/Set All Groups to LZMA")]
-        public static void SetAllGroupsToLZMA()
-        {
-            SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode.LZMA);
-        }
-        
+        public static void SetAllGroupsToLZMA() { SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode.LZMA); }
+
         [MenuItem("TheOne/Set All Groups to LZ4")]
-        public static void SetAllGroupsToLZ4()
-        {
-            SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode.LZ4);
-        }
+        public static void SetAllGroupsToLZ4() { SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode.LZ4); }
 
         private static void SetAddressableGroupCompressionMode(BundledAssetGroupSchema.BundleCompressionMode compressionMode)
         {
@@ -97,11 +92,11 @@ namespace BuildScripts.Editor.Addressable
                     schema.UseUnityWebRequestForLocalBundles = false;
                 }
             }
-            
+
             settings.SetDirty(AddressableAssetSettings.ModificationEvent.GroupSchemaModified, null, true, true);
         }
-        
-        #if PAD
+
+#if PAD
         [MenuItem("TheOne/Change from OnDemand to InstallTime")]
         public static void ChangeDeliveryTypeFromOnDemandToInstallTime()
         {
@@ -120,10 +115,11 @@ namespace BuildScripts.Editor.Addressable
                 }
             }
         }
-        #endif
-        
+#endif
+
         public static void CreateOrUpdateTheOneCDNProfile(string buildPath, string loadPath)
         {
+#if UNITY_6000_0_OR_NEWER
             var settings    = AddressableAssetSettingsDefaultObject.Settings;
             var profileName = "TheOneCDN";
             var profileId   = settings.profileSettings.GetProfileId(profileName);
@@ -131,17 +127,18 @@ namespace BuildScripts.Editor.Addressable
             // If the profile does not exist, create it
             if (string.IsNullOrEmpty(profileId)) ;
             {
-                profileId =  settings.profileSettings.AddProfile(profileName, "Default");
+                profileId = settings.profileSettings.AddProfile(profileName, "Default");
             }
             settings.activeProfileId = profileId;
 
             // Assuming 'BuildPath' and 'LoadPath' are the keys for the respective paths in your profile settings
             settings.profileSettings.SetValue(profileId, AddressableAssetSettings.kRemoteBuildPath, buildPath);
             settings.profileSettings.SetValue(profileId, AddressableAssetSettings.kRemoteLoadPath, loadPath);
-            
+
             // Save changes
             settings.SetDirty(AddressableAssetSettings.ModificationEvent.ProfileModified, null, true, true);
             AssetDatabase.Refresh();
+#endif
         }
     }
 }
