@@ -362,7 +362,7 @@ public static class Build
                 UserBuildSettings.codeOptimization = WasmCodeOptimization.DiskSizeLTO;
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
                 PlayerSettings.WebGL.showDiagnostics = false;
-#if FB_INSTANT || PRODUCT
+#if FB_INSTANT || PRODUCT || PRODUCTION
                 PlayerSettings.WebGL.showDiagnostics = false;
 #else
                 PlayerSettings.WebGL.showDiagnostics = true;
