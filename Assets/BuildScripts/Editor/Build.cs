@@ -38,6 +38,7 @@ public static class Build
         public string           Platform; // eg "win-x64"
         public BuildTarget      BuildTarget;
         public BuildTargetGroup BuildTargetGroup;
+        public NamedBuildTarget NamedBuildTarget;
     }
 
     private static readonly List<BuildTargetInfo> Targets = new()
@@ -45,26 +46,36 @@ public static class Build
         new BuildTargetInfo
         {
             Platform         = PlatformWin32, BuildTarget = BuildTarget.StandaloneWindows,
-            BuildTargetGroup = BuildTargetGroup.Standalone
+            BuildTargetGroup = BuildTargetGroup.Standalone,
+            NamedBuildTarget = NamedBuildTarget.Standalone
         },
         new BuildTargetInfo
         {
             Platform         = PlatformWin64, BuildTarget = BuildTarget.StandaloneWindows64,
-            BuildTargetGroup = BuildTargetGroup.Standalone
+            BuildTargetGroup = BuildTargetGroup.Standalone,
+            NamedBuildTarget = NamedBuildTarget.Standalone
         },
         new BuildTargetInfo
         {
             Platform         = PlatformOsx, BuildTarget = BuildTarget.StandaloneOSX,
-            BuildTargetGroup = BuildTargetGroup.Standalone
+            BuildTargetGroup = BuildTargetGroup.Standalone,
+            NamedBuildTarget = NamedBuildTarget.Standalone
         },
         new BuildTargetInfo
         {
-            Platform = PlatformAndroid, BuildTarget = BuildTarget.Android, BuildTargetGroup = BuildTargetGroup.Android
+            Platform = PlatformAndroid, BuildTarget = BuildTarget.Android, BuildTargetGroup = BuildTargetGroup.Android,
+            NamedBuildTarget = NamedBuildTarget.Android
         },
         new BuildTargetInfo
-            { Platform = PlatformIOS, BuildTarget = BuildTarget.iOS, BuildTargetGroup = BuildTargetGroup.iOS },
+        {
+            Platform = PlatformIOS, BuildTarget = BuildTarget.iOS, BuildTargetGroup = BuildTargetGroup.iOS,
+            NamedBuildTarget = NamedBuildTarget.iOS
+        },
         new BuildTargetInfo
-            { Platform = PlatformWebGL, BuildTarget = BuildTarget.WebGL, BuildTargetGroup = BuildTargetGroup.WebGL }
+        {
+            Platform = PlatformWebGL, BuildTarget = BuildTarget.WebGL, BuildTargetGroup = BuildTargetGroup.WebGL,
+            NamedBuildTarget = NamedBuildTarget.WebGL
+        }
     };
 
     private static string[] SCENES           = FindEnabledEditorScenes();
@@ -106,7 +117,7 @@ public static class Build
 
         foreach (var buildTargetInfo in GetBuildTargetInfoFromString(platforms))
         {
-            SetScriptingDefineSymbolInternal(buildTargetInfo.BuildTargetGroup, scriptingDefineSymbols);
+            SetScriptingDefineSymbolInternal(buildTargetInfo.NamedBuildTarget, scriptingDefineSymbols);
             CompilationPipeline.RequestScriptCompilation();
             CodeEditor.Editor.CurrentCodeEditor.SyncAll();
         }
@@ -257,7 +268,11 @@ public static class Build
         bool buildAppBundle = false, string packageName = "")
     {
         PlayerSettings.Android.minSdkVersion    = AndroidSdkVersions.AndroidApiLevel24;
+        #if UNITY_6000_1_OR_NEWER
+        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
+        #else
         PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
+        #endif
 
         BuildTools.ResetBuildSettings();
         EditorUserBuildSettings.buildAppBundle = buildAppBundle;
@@ -275,10 +290,10 @@ public static class Build
             Console.WriteLine($"Building: {platform.Platform}");
             Console.WriteLine($"----------{new string('-', platform.Platform.Length)}");
 
-            PlayerSettings.SetScriptingBackend(platform.BuildTargetGroup, scriptingBackend);
+            PlayerSettings.SetScriptingBackend(platform.NamedBuildTarget, scriptingBackend);
             if (!string.IsNullOrEmpty(packageName))
             {
-                PlayerSettings.SetApplicationIdentifier(platform.BuildTargetGroup, packageName);
+                PlayerSettings.SetApplicationIdentifier(platform.NamedBuildTarget, packageName);
             }
 
             SpecificActionForEachPlatform(platform);
@@ -337,7 +352,7 @@ public static class Build
 #endif
                 PlayerSettings.Android.minifyRelease = true;
                 PlayerSettings.Android.minifyDebug   = true;
-                PlayerSettings.SetManagedStrippingLevel(platform.BuildTargetGroup, ManagedStrippingLevel.High);
+                PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
 #if UNITY_2022_1_OR_NEWER
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, il2CppCodeGeneration);
@@ -458,7 +473,7 @@ public static class Build
 #endif
     }
 
-    public static void SetScriptingDefineSymbolInternal(BuildTargetGroup buildTargetGroup,
+    public static void SetScriptingDefineSymbolInternal(NamedBuildTarget namedBuildTarget,
         string scriptingDefineSymbols) =>
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, scriptingDefineSymbols);
+        PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, scriptingDefineSymbols);
 }

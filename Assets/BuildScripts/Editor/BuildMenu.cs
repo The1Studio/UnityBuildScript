@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using BuildScripts.Editor.Addressable;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditorInternal;
 
 public static class BuildMenu
@@ -163,7 +164,7 @@ public static class BuildMenu
     [MenuItem("Build/Set scripting define symbols", priority = 100)]
     static void Build_SetScriptingDefineSymbols()
     {
-        Build.SetScriptingDefineSymbolInternal(BuildTargetGroup.Android,
+        Build.SetScriptingDefineSymbolInternal(NamedBuildTarget.Android,
                                                "TextMeshPro;ODIN_INSPECTOR;ODIN_INSPECTOR_3;EASY_MOBILE;EASY_MOBILE_PRO;EM_ADMOB;EM_URP;ADDRESSABLES_ENABLED");
     }
 
