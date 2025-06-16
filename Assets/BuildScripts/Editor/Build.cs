@@ -63,23 +63,29 @@ public static class Build
         },
         new BuildTargetInfo
         {
-            Platform = PlatformAndroid, BuildTarget = BuildTarget.Android, BuildTargetGroup = BuildTargetGroup.Android,
+            Platform         = PlatformAndroid, BuildTarget = BuildTarget.Android, BuildTargetGroup = BuildTargetGroup.Android,
             NamedBuildTarget = NamedBuildTarget.Android
         },
         new BuildTargetInfo
         {
-            Platform = PlatformIOS, BuildTarget = BuildTarget.iOS, BuildTargetGroup = BuildTargetGroup.iOS,
+            Platform         = PlatformIOS, BuildTarget = BuildTarget.iOS, BuildTargetGroup = BuildTargetGroup.iOS,
             NamedBuildTarget = NamedBuildTarget.iOS
         },
         new BuildTargetInfo
         {
-            Platform = PlatformWebGL, BuildTarget = BuildTarget.WebGL, BuildTargetGroup = BuildTargetGroup.WebGL,
+            Platform         = PlatformWebGL, BuildTarget = BuildTarget.WebGL, BuildTargetGroup = BuildTargetGroup.WebGL,
             NamedBuildTarget = NamedBuildTarget.WebGL
         }
     };
 
-    private static string[] SCENES           = FindEnabledEditorScenes();
-    private static bool     OptimizeBuildSie = false;
+    private static string[] SCENES                = FindEnabledEditorScenes();
+    private static bool     OptimizeBuildSie      = false;
+    private static string   keyStoreFileName      = "the1_googleplay.keystore";
+    private static string   keyStoreAliasName     = "theonestudio";
+    private static string   keyStorePassword      = "tothemoon";
+    private static string   keyStoreAliasPassword = "tothemoon";
+    private static string   iosTargetOSVersion    = "13.0";
+    private static string   iosSigningTeamId      = "";
 
 
     private static BuildTargetInfo[] GetBuildTargetInfoFromString(string platforms)
@@ -129,23 +135,17 @@ public static class Build
         AndroidExternalToolsSettings.gradlePath = null;
 #endif
         // Grab the CSV platforms string
-        var platforms                  = string.Join(";", Targets.Select(t => t.Platform));
-        var scriptingBackend           = ScriptingImplementation.Mono2x;
-        var args                       = Environment.GetCommandLineArgs();
+        var platforms        = string.Join(";", Targets.Select(t => t.Platform));
+        var scriptingBackend = ScriptingImplementation.Mono2x;
+        var args             = Environment.GetCommandLineArgs();
 #if PRODUCTION
-        var buildOptions               = BuildOptions.CompressWithLz4HC | BuildOptions.CleanBuildCache;
+        var buildOptions = BuildOptions.CompressWithLz4HC | BuildOptions.CleanBuildCache;
 #else
         var buildOptions = BuildOptions.CompressWithLz4; // Increase build time
 #endif
         var outputPath                 = "template.exe";
         var buildAppBundle             = false;
         var packageName                = "";
-        var keyStoreFileName           = "the1_googleplay.keystore";
-        var keyStoreAliasName          = "theonestudio";
-        var keyStorePassword           = "tothemoon";
-        var keyStoreAliasPassword      = "tothemoon";
-        var iosTargetOSVersion         = "13.0";
-        var iosSigningTeamId           = "";
         var remoteAddressableBuildPath = "";
         var remoteAddressableLoadPath  = "";
 
@@ -217,26 +217,6 @@ public static class Build
             AddressableBuildTool.CreateOrUpdateTheOneCDNProfile(remoteAddressableBuildPath, remoteAddressableLoadPath);
         }
 
-        if (buildAppBundle)
-        {
-            SetUpAndroidKeyStore(keyStoreFileName, keyStorePassword, keyStoreAliasName, keyStoreAliasPassword);
-#if UNITY_6000_0_OR_NEWER
-            UserBuildSettings.DebugSymbols.level = DebugSymbolLevel.Full;
-#else
-            EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Debugging;
-#endif
-        }
-        else
-        {
-#if UNITY_6000_0_OR_NEWER
-            UserBuildSettings.DebugSymbols.level = DebugSymbolLevel.None;
-#else
-            EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Disabled;
-#endif
-        }
-
-        SetupIos(iosSigningTeamId, iosTargetOSVersion);
-
         PlayerSettings.SplashScreen.showUnityLogo = false;
         // Get a list of targets to build
         BuildInternal(scriptingBackend, buildOptions, platforms.Split(";"), outputPath,
@@ -271,15 +251,7 @@ public static class Build
         IEnumerable<string> platforms, string outputPath,
         bool buildAppBundle = false, string packageName = "")
     {
-        PlayerSettings.Android.minSdkVersion    = AndroidSdkVersions.AndroidApiLevel24;
-        #if UNITY_6000_1_OR_NEWER
-        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
-        #else
-        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
-        #endif
-
         BuildTools.ResetBuildSettings();
-        EditorUserBuildSettings.buildAppBundle = buildAppBundle;
 
         var buildTargetInfos = GetBuildTargetInfoFromString(platforms);
         Console.WriteLine("Building Targets: " +
@@ -300,13 +272,45 @@ public static class Build
                 PlayerSettings.SetApplicationIdentifier(platform.NamedBuildTarget, packageName);
             }
 
-            SpecificActionForEachPlatform(platform);
-            SetApplicationVersion();
-
             if (EditorUserBuildSettings.activeBuildTarget != platform.BuildTarget)
             {
                 EditorUserBuildSettings.SwitchActiveBuildTarget(platform.BuildTargetGroup, platform.BuildTarget);
             }
+            SpecificActionForEachPlatform(platform);
+            SetApplicationVersion();
+
+#if UNITY_IOS
+        SetupIos(iosSigningTeamId, iosTargetOSVersion);
+#endif // UNITY_IOS
+
+#if UNITY_ANDROID
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+#if UNITY_6000_1_OR_NEWER
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
+#else
+        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
+#endif
+            EditorUserBuildSettings.buildAppBundle = buildAppBundle;
+
+            if (buildAppBundle)
+            {
+                SetUpAndroidKeyStore(keyStoreFileName, keyStorePassword, keyStoreAliasName, keyStoreAliasPassword);
+#if UNITY_6000_0_OR_NEWER
+                UserBuildSettings.DebugSymbols.level = DebugSymbolLevel.Full;
+#else
+            EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Debugging;
+#endif
+            }
+            else
+            {
+#if UNITY_6000_0_OR_NEWER
+                UserBuildSettings.DebugSymbols.level = DebugSymbolLevel.None;
+#else
+            EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Disabled;
+#endif
+            }
+#endif //UNITY_ANDROID
+
             AddressableBuildTool.BuildAddressable();
 
             // Set up the build options
@@ -351,11 +355,11 @@ public static class Build
 #endif
 #if UNITY_6000_0_OR_NEWER
                 PlayerSettings.Android.optimizedFramePacing = false;
-    #if !GAME_ACTIVITY
+#if !GAME_ACTIVITY
                 PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
-                #else
+#else
                 PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
-    #endif
+#endif
 #endif
                 PlayerSettings.Android.minifyRelease = true;
                 PlayerSettings.Android.minifyDebug   = true;
