@@ -343,6 +343,13 @@ public static class Build
 #if !UNITY_2022_1_OR_NEWER
         EditorUserBuildSettings.il2CppCodeGeneration = il2CppCodeGeneration;
 #endif
+#if PRODUCTION
+        PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
+        PlayerSettings.stripEngineCode = true;
+#else        
+        PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.Minimal);
+        PlayerSettings.stripEngineCode = false;
+#endif
         switch (platform.BuildTarget)
         {
             case BuildTarget.iOS:
@@ -363,7 +370,6 @@ public static class Build
 #endif
                 PlayerSettings.Android.minifyRelease = true;
                 PlayerSettings.Android.minifyDebug   = true;
-                PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
 #if UNITY_2022_1_OR_NEWER
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, il2CppCodeGeneration);
