@@ -132,7 +132,11 @@ public static class Build
         var platforms                  = string.Join(";", Targets.Select(t => t.Platform));
         var scriptingBackend           = ScriptingImplementation.Mono2x;
         var args                       = Environment.GetCommandLineArgs();
+#if PRODUCTION
         var buildOptions               = BuildOptions.CompressWithLz4HC | BuildOptions.CleanBuildCache;
+#else
+        var buildOptions = BuildOptions.CompressWithLz4; // Increase build time
+#endif
         var outputPath                 = "template.exe";
         var buildAppBundle             = false;
         var packageName                = "";
@@ -299,7 +303,10 @@ public static class Build
             SpecificActionForEachPlatform(platform);
             SetApplicationVersion();
 
-            EditorUserBuildSettings.SwitchActiveBuildTarget(platform.BuildTargetGroup, platform.BuildTarget);
+            if (EditorUserBuildSettings.activeBuildTarget != platform.BuildTarget)
+            {
+                EditorUserBuildSettings.SwitchActiveBuildTarget(platform.BuildTargetGroup, platform.BuildTarget);
+            }
             AddressableBuildTool.BuildAddressable();
 
             // Set up the build options
