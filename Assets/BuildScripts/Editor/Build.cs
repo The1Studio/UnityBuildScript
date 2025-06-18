@@ -124,8 +124,6 @@ public static class Build
         foreach (var buildTargetInfo in GetBuildTargetInfoFromString(platforms))
         {
             SetScriptingDefineSymbolInternal(buildTargetInfo.NamedBuildTarget, scriptingDefineSymbols);
-            CompilationPipeline.RequestScriptCompilation();
-            CodeEditor.Editor.CurrentCodeEditor.SyncAll();
         }
     }
 
@@ -135,9 +133,8 @@ public static class Build
         AndroidExternalToolsSettings.gradlePath = null;
 #endif
         // Grab the CSV platforms string
-        var platforms        = string.Join(";", Targets.Select(t => t.Platform));
-        var scriptingBackend = ScriptingImplementation.Mono2x;
-        var args             = Environment.GetCommandLineArgs();
+        var platforms = string.Join(";", Targets.Select(t => t.Platform));
+        var args      = Environment.GetCommandLineArgs();
 #if PRODUCTION
         var buildOptions = BuildOptions.CompressWithLz4HC | BuildOptions.CleanBuildCache;
 #else
@@ -156,14 +153,6 @@ public static class Build
             {
                 case "-platforms":
                     platforms = args[++i];
-                    break;
-                case "-scriptingBackend":
-                    scriptingBackend = args[++i].ToLowerInvariant() switch
-                    {
-                        "il2cpp" => ScriptingImplementation.IL2CPP,
-                        "mono" => ScriptingImplementation.Mono2x,
-                        _ => throw new Exception("Unknown scripting backend")
-                    };
                     break;
                 case "-development":
                     buildOptions |= BuildOptions.Development;
@@ -219,7 +208,12 @@ public static class Build
 
         PlayerSettings.SplashScreen.showUnityLogo = false;
         // Get a list of targets to build
-        BuildInternal(scriptingBackend, buildOptions, platforms.Split(";"), outputPath,
+#if PRODUCTION
+        var scriptBackend = ScriptingImplementation.IL2CPP;
+#else
+        var scriptBackend = ScriptingImplementation.Mono2x;
+#endif
+        BuildInternal(scriptBackend, buildOptions, platforms.Split(";"), outputPath,
             buildAppBundle, packageName);
     }
 
@@ -247,7 +241,7 @@ public static class Build
         Console.WriteLine("-----Setup android keystore finished-----");
     }
 
-    public static void BuildInternal(ScriptingImplementation scriptingBackend, BuildOptions options,
+    public static void BuildInternal(ScriptingImplementation scriptBackend, BuildOptions options,
         IEnumerable<string> platforms, string outputPath,
         bool buildAppBundle = false, string packageName = "")
     {
@@ -266,7 +260,6 @@ public static class Build
             Console.WriteLine($"Building: {platform.Platform}");
             Console.WriteLine($"----------{new string('-', platform.Platform.Length)}");
 
-            PlayerSettings.SetScriptingBackend(platform.NamedBuildTarget, scriptingBackend);
             if (!string.IsNullOrEmpty(packageName))
             {
                 PlayerSettings.SetApplicationIdentifier(platform.NamedBuildTarget, packageName);
@@ -276,8 +269,10 @@ public static class Build
             {
                 EditorUserBuildSettings.SwitchActiveBuildTarget(platform.BuildTargetGroup, platform.BuildTarget);
             }
+
             SpecificActionForEachPlatform(platform);
             SetApplicationVersion();
+            PlayerSettings.SetScriptingBackend(platform.NamedBuildTarget, scriptBackend);
 
 #if UNITY_IOS
         SetupIos(iosSigningTeamId, iosTargetOSVersion);
@@ -288,7 +283,7 @@ public static class Build
 #if UNITY_6000_1_OR_NEWER
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
 #else
-        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
 #endif
             EditorUserBuildSettings.buildAppBundle = buildAppBundle;
 
@@ -339,14 +334,13 @@ public static class Build
 
     private static void SpecificActionForEachPlatform(BuildTargetInfo platform)
     {
-        var il2CppCodeGeneration = OptimizeBuildSie ? Il2CppCodeGeneration.OptimizeSize : Il2CppCodeGeneration.OptimizeSpeed;
 #if !UNITY_2022_1_OR_NEWER
         EditorUserBuildSettings.il2CppCodeGeneration = il2CppCodeGeneration;
 #endif
 #if PRODUCTION
         PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
         PlayerSettings.stripEngineCode = true;
-#else        
+#else
         PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.Minimal);
         PlayerSettings.stripEngineCode = false;
 #endif
@@ -368,10 +362,11 @@ public static class Build
                 PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
 #endif
 #endif
-                PlayerSettings.Android.minifyRelease = true;
-                PlayerSettings.Android.minifyDebug   = true;
+                PlayerSettings.Android.minifyRelease       = true;
+                PlayerSettings.Android.minifyDebug         = true;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
 #if UNITY_2022_1_OR_NEWER
+                var il2CppCodeGeneration = OptimizeBuildSie ? Il2CppCodeGeneration.OptimizeSize : Il2CppCodeGeneration.OptimizeSpeed;
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, il2CppCodeGeneration);
 #endif
                 break;
@@ -491,6 +486,10 @@ public static class Build
     }
 
     public static void SetScriptingDefineSymbolInternal(NamedBuildTarget namedBuildTarget,
-        string scriptingDefineSymbols) =>
+        string scriptingDefineSymbols)
+    {
         PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, scriptingDefineSymbols);
+        CompilationPipeline.RequestScriptCompilation();
+        CodeEditor.Editor.CurrentCodeEditor.SyncAll();
+    }
 }
