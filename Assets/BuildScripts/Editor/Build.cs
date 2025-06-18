@@ -208,7 +208,7 @@ public static class Build
 
         PlayerSettings.SplashScreen.showUnityLogo = false;
         // Get a list of targets to build
-#if PRODUCTION
+#if !PR_CHECK
         var scriptBackend = ScriptingImplementation.IL2CPP;
 #else
         var scriptBackend = ScriptingImplementation.Mono2x;
