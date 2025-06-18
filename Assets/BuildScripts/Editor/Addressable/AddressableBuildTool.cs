@@ -22,13 +22,12 @@ namespace BuildScripts.Editor.Addressable
 #else
             SetAllGroupsToLZ4();
 #endif
+#if PRODUCTION || CLEAN_ADDRESSABLES
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Clean addressable");
             Console.WriteLine($"--------------------");
             AddressableAssetSettings.CleanPlayerContent();
-            Console.WriteLine($"--------------------");
-            Console.WriteLine($"Build addressable");
-            Console.WriteLine($"--------------------");
+#endif
 
             var setting = AddressableAssetSettingsDefaultObject.Settings;
 #if UNITY_6000_0_OR_NEWER
@@ -56,6 +55,9 @@ namespace BuildScripts.Editor.Addressable
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
+            Console.WriteLine($"--------------------");
+            Console.WriteLine($"Build addressable");
+            Console.WriteLine($"--------------------");
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
             var success = string.IsNullOrEmpty(result.Error);
             if (!success)
