@@ -17,11 +17,6 @@ namespace BuildScripts.Editor.Addressable
     {
         public static void BuildAddressable()
         {
-#if PRODUCTION && !THEONE_NO_LZMA && !UNITY_WEBGL
-            SetAllGroupsToLZMA();
-#else
-            SetAllGroupsToLZ4();
-#endif
 #if PRODUCTION || CLEAN_ADDRESSABLES
             Console.WriteLine($"--------------------");
             Console.WriteLine($"Clean addressable");
