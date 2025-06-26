@@ -373,17 +373,20 @@ public static class Build
 #if UNITY_WEBGL
             case BuildTarget.WebGL:
                 PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
-#if PRODUCTION && !FB_INSTANT
+#if WEBGL_BROTLI
                 PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
-                PlayerSettings.WebGL.decompressionFallback = true; 
+                PlayerSettings.WebGL.decompressionFallback = true;
+#elif WEBGL_GZIP
+                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+                PlayerSettings.WebGL.decompressionFallback = true;
 #else
-                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
-                PlayerSettings.WebGL.decompressionFallback = false; 
+                PlayerSettings.WebGL.compressionFormat     = WebGLCompressionFormat.Disabled;
+                PlayerSettings.WebGL.decompressionFallback = false;
 #endif
-                PlayerSettings.runInBackground             = false;
-                PlayerSettings.WebGL.powerPreference       = WebGLPowerPreference.Default;
-                PlayerSettings.WebGL.dataCaching           = true;
-                PlayerSettings.WebGL.nameFilesAsHashes     = true;
+                PlayerSettings.runInBackground         = false;
+                PlayerSettings.WebGL.powerPreference   = WebGLPowerPreference.Default;
+                PlayerSettings.WebGL.dataCaching       = true;
+                PlayerSettings.WebGL.nameFilesAsHashes = true;
 #if PRODUCTION
                 PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
 #else
