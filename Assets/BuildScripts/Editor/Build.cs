@@ -372,24 +372,29 @@ public static class Build
                 break;
 #if UNITY_WEBGL
             case BuildTarget.WebGL:
-                PlayerSettings.SetManagedStrippingLevel(platform.BuildTargetGroup, ManagedStrippingLevel.High);
-                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled; // Disable compression for FBInstant game
-                PlayerSettings.WebGL.decompressionFallback = false; // Disable compression for FBInstant game
-                PlayerSettings.runInBackground = false;
-                PlayerSettings.WebGL.powerPreference = WebGLPowerPreference.Default;
-                PlayerSettings.WebGL.dataCaching = true;
-                PlayerSettings.WebGL.nameFilesAsHashes = true;
-#if PRODUCTION
-                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;     
+                PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
+#if PRODUCTION && !FB_INSTANT
+                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+                PlayerSettings.WebGL.decompressionFallback = true; 
 #else
-                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.FullWithStacktrace;     
-#endif      
+                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+                PlayerSettings.WebGL.decompressionFallback = false; 
+#endif
+                PlayerSettings.runInBackground             = false;
+                PlayerSettings.WebGL.powerPreference       = WebGLPowerPreference.Default;
+                PlayerSettings.WebGL.dataCaching           = true;
+                PlayerSettings.WebGL.nameFilesAsHashes     = true;
+#if PRODUCTION
+                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
+#else
+                PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.FullWithStacktrace;
+#endif
 #if UNITY_2022_1_OR_NEWER
                 PlayerSettings.WebGL.initialMemorySize = 64;
-                UserBuildSettings.codeOptimization = WasmCodeOptimization.DiskSizeLTO;
+                UserBuildSettings.codeOptimization     = WasmCodeOptimization.DiskSizeLTO;
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
                 PlayerSettings.WebGL.showDiagnostics = false;
-#if FB_INSTANT || PRODUCT || PRODUCTION
+#if FB_INSTANT || PRODUCTION
                 PlayerSettings.WebGL.showDiagnostics = false;
 #else
                 PlayerSettings.WebGL.showDiagnostics = true;
