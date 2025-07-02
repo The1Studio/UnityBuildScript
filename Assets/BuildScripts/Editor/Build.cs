@@ -283,7 +283,7 @@ public static class Build
 #if UNITY_6000_1_OR_NEWER
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
 #else
-            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel35;
 #endif
             EditorUserBuildSettings.buildAppBundle = buildAppBundle;
 
