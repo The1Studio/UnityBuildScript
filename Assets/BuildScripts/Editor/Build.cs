@@ -245,6 +245,9 @@ public static class Build
         IEnumerable<string> platforms, string outputPath,
         bool buildAppBundle = false, string packageName = "")
     {
+#if DEEP_PROFILING
+            options |= BuildOptions.EnableDeepProfilingSupport;
+#endif
         BuildTools.ResetBuildSettings();
 
         var buildTargetInfos = GetBuildTargetInfoFromString(platforms);
