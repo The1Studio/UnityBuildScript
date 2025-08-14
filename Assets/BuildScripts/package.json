@@ -2,7 +2,7 @@
   "name": "com.theone.foundation.buildscript",
   "displayName": "The One Unity Build Script",
   "description": "Unity build script that use to build for multiple platform.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "unity": "2022.3",
   "license": "MIT",
   "repository": {

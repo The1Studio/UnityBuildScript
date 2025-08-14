@@ -163,11 +163,59 @@ namespace BuildScripts.Editor.Addressable
             ToggleGroupsByNamePrefix("Debug", includeDebug);
             ToggleGroupsByNamePrefix("Creative", includeCreative);
             ToggleGroupsByNamePrefix("Editor", includeEditor);
+            
+            // Apply schema-based conditional rules
+            ApplySchemaBasedConditionalRules();
 
             // Log the applied rules
             Debug.Log($"[Addressables Conditional Build] Debug groups: {(includeDebug ? "Included" : "Excluded")}");
             Debug.Log($"[Addressables Conditional Build] Creative groups: {(includeCreative ? "Included" : "Excluded")}");
             Debug.Log($"[Addressables Conditional Build] Editor groups: {(includeEditor ? "Included" : "Excluded")}");
+        }
+
+        private static void ApplySchemaBasedConditionalRules()
+        {
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                Debug.LogWarning("Addressables settings not found.");
+                return;
+            }
+
+            foreach (var group in settings.groups)
+            {
+                if (group == null) continue;
+
+                // Check for IncludeInBuildWithSymbol schema
+                var includeSchema = group.GetSchema<IncludeInBuildWithSymbolSchema>();
+                if (includeSchema != null)
+                {
+                    var shouldInclude = includeSchema.ShouldIncludeInBuild();
+                    var bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+                    if (bundleSchema != null && bundleSchema.IncludeInBuild != shouldInclude)
+                    {
+                        bundleSchema.IncludeInBuild = shouldInclude;
+                        EditorUtility.SetDirty(bundleSchema);
+                        Debug.Log($"[Addressables Symbol Schema] Group '{group.name}' IncludeInBuild = {shouldInclude} (based on IncludeInBuildWithSymbol)");
+                    }
+                }
+
+                // Check for ExcludeInBuildWithSymbol schema
+                var excludeSchema = group.GetSchema<ExcludeInBuildWithSymbolSchema>();
+                if (excludeSchema != null)
+                {
+                    var shouldInclude = excludeSchema.ShouldIncludeInBuild();
+                    var bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+                    if (bundleSchema != null && bundleSchema.IncludeInBuild != shouldInclude)
+                    {
+                        bundleSchema.IncludeInBuild = shouldInclude;
+                        EditorUtility.SetDirty(bundleSchema);
+                        Debug.Log($"[Addressables Symbol Schema] Group '{group.name}' IncludeInBuild = {shouldInclude} (based on ExcludeInBuildWithSymbol)");
+                    }
+                }
+            }
+
+            AssetDatabase.SaveAssets();
         }
 
         public static void ToggleGroupsByNamePrefix(string prefix, bool include)

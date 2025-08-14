@@ -119,6 +119,27 @@ The package automatically configures Addressables for production builds:
 - Compression settings per platform
 - Build path customization
 
+### Conditional Addressable Groups
+
+New schema-based conditional inclusion/exclusion of addressable groups:
+
+#### IncludeInBuildWithSymbolSchema
+Add this schema to a group to include it only when specific scripting define symbols are set:
+- Add multiple symbols to check
+- Choose "Require All" or "Any" logic
+- Group automatically included/excluded based on current defines
+
+#### ExcludeInBuildWithSymbolSchema
+Add this schema to a group to exclude it when specific scripting define symbols are set:
+- Add multiple symbols to check
+- Choose "Exclude If Any" or "All" logic
+- Inverse of IncludeInBuildWithSymbol
+
+Example use cases:
+- Include debug assets only in development builds
+- Exclude test content from production builds
+- Conditionally include platform-specific assets
+
 ### Scripting Define Symbols
 
 Use the `BuildTools.IsDefineSet()` utility to check scripting defines:
