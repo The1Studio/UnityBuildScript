@@ -4,6 +4,7 @@ using BuildScripts.Editor.Addressable;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditorInternal;
+using Debug = UnityEngine.Debug;
 
 public static class BuildMenu
 {
@@ -105,33 +106,6 @@ public static class BuildMenu
     
 
     #endregion
-
-    #region ios
-
-    // private static void Build_IOS_IL2CPP()
-    // {
-    //     Build.BuildInternal(ScriptingImplementation.IL2CPP, BuildOptions.None, new[] { Build.PlatformIOS }, "default");
-    //
-    //     OpenLog("Build-Client-Report.android.log");
-    // }
-    //
-    // [MenuItem("Build/Standalone/build android Mono")]
-    // private static void Build_IOS_Mono()
-    // {
-    //     Build.BuildInternal(ScriptingImplementation.Mono2x, BuildOptions.None, new[] { Build.PlatformIOS }, "default");
-    //
-    //     OpenLog("Build-Client-Report.android.log");
-    // }
-    //
-    // [MenuItem("Build/Standalone/build android IL2CPP (Slow)")]
-    // private static void Build_IOS_ABB()
-    // {
-    //     Build.BuildInternal(ScriptingImplementation.IL2CPP, BuildOptions.None, new[] { Build.PlatformIOS }, "default");
-    //
-    //     OpenLog("Build-Client-Report.android.log");
-    // }
-
-    #endregion
     
     #region webgl
 
@@ -153,10 +127,53 @@ public static class BuildMenu
 
     #endregion
     
-    [MenuItem("Build/Addressable/build_fresh", priority = 1100)]
+    [MenuItem("Build/Addressable/Build (with conditional rules)", priority = 1100)]
     private static void Build_Addressable_fresh()
     {
         AddressableBuildTool.BuildAddressable();
+    }
+
+    [MenuItem("Build/Addressable/Toggle Debug Groups", priority = 1101)]
+    private static void Toggle_Debug_Groups()
+    {
+        bool isProduction = BuildTools.IsDefineSet("PRODUCTION");
+        bool includeDebug = EditorUserBuildSettings.development || BuildTools.IsDefineSet("INCLUDE_DEBUG_ASSETS");
+        
+        if (isProduction)
+        {
+            includeDebug = false;
+            Debug.Log("Debug groups forced to EXCLUDED (PRODUCTION mode)");
+        }
+        else
+        {
+            AddressableBuildTool.ToggleGroupsByNamePrefix("Debug", includeDebug);
+            Debug.Log($"Debug groups set to: {(includeDebug ? "Included" : "Excluded")}");
+        }
+    }
+ 
+    [MenuItem("Build/Addressable/Toggle Creative Groups", priority = 1102)]
+    private static void Toggle_Creative_Groups()
+    {
+        bool isProduction = BuildTools.IsDefineSet("PRODUCTION");
+        bool includeCreative = BuildTools.IsDefineSet("INCLUDE_CREATIVE_ASSETS");
+        
+        if (isProduction)
+        {
+            includeCreative = false;
+            Debug.Log("Creative groups forced to EXCLUDED (PRODUCTION mode)");
+        }
+        else
+        {
+            AddressableBuildTool.ToggleGroupsByNamePrefix("Creative", includeCreative);
+            Debug.Log($"Creative groups set to: {(includeCreative ? "Included" : "Excluded")}");
+        }
+    }
+
+    [MenuItem("Build/Addressable/Apply Conditional Rules", priority = 1103)]
+    private static void Apply_Conditional_Rules()
+    {
+        AddressableBuildTool.ApplyConditionalBuildRules();
+        Debug.Log("Conditional rules applied based on current symbols");
     }
 
 

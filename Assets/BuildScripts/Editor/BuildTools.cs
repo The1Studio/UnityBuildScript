@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -59,5 +60,16 @@ public static class BuildTools
         sb.AppendLine($"CreateSolution = {CreateSolution}");
 
         Debug.Log(sb.ToString());
+    }
+
+    public static bool IsDefineSet(string define)
+    {
+        return  IsDefineSet(define, EditorUserBuildSettings.selectedBuildTargetGroup);
+    }
+
+    public static bool IsDefineSet(string define, BuildTargetGroup targetGroup)
+    {
+        PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(targetGroup), out var defines);
+        return defines.Contains(define);
     }
 }

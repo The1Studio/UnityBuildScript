@@ -25,6 +25,9 @@ namespace BuildScripts.Editor.Addressable
 #endif
 
             var setting = AddressableAssetSettingsDefaultObject.Settings;
+
+            // Always apply conditional build rules based on symbols
+            ApplyConditionalBuildRules();
 #if UNITY_6000_0_OR_NEWER
             //TODO disable it when find a case that need to split APK
             PlayerSettings.Android.splitApplicationBinary = false; // Disable split APK
@@ -136,6 +139,71 @@ namespace BuildScripts.Editor.Addressable
             settings.SetDirty(AddressableAssetSettings.ModificationEvent.ProfileModified, null, true, true);
             AssetDatabase.Refresh();
 #endif
+        }
+
+        public static void ApplyConditionalBuildRules()
+        {
+            bool isProduction = BuildTools.IsDefineSet("PRODUCTION");
+            
+            // Check for specific defines or development build
+            bool includeDebug = EditorUserBuildSettings.development || BuildTools.IsDefineSet("INCLUDE_DEBUG_ASSETS");
+            bool includeCreative = BuildTools.IsDefineSet("INCLUDE_CREATIVE_ASSETS");
+            bool includeEditor = BuildTools.IsDefineSet("INCLUDE_EDITOR_ASSETS");
+
+            // In PRODUCTION, force exclude Debug and Creative groups regardless of other settings
+            if (isProduction)
+            {
+                includeDebug = false;
+                includeCreative = false;
+                includeEditor = false;
+                Debug.Log($"[Addressables Conditional Build] PRODUCTION build - forcing exclusion of Debug, Creative, and Editor groups");
+            }
+
+            // Apply conditional rules for different group prefixes
+            ToggleGroupsByNamePrefix("Debug", includeDebug);
+            ToggleGroupsByNamePrefix("Creative", includeCreative);
+            ToggleGroupsByNamePrefix("Editor", includeEditor);
+
+            // Log the applied rules
+            Debug.Log($"[Addressables Conditional Build] Debug groups: {(includeDebug ? "Included" : "Excluded")}");
+            Debug.Log($"[Addressables Conditional Build] Creative groups: {(includeCreative ? "Included" : "Excluded")}");
+            Debug.Log($"[Addressables Conditional Build] Editor groups: {(includeEditor ? "Included" : "Excluded")}");
+        }
+
+        public static void ToggleGroupsByNamePrefix(string prefix, bool include)
+        {
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                Debug.LogWarning("Addressables settings not found.");
+                return;
+            }
+
+            foreach (var group in settings.groups)
+            {
+                if (group == null) continue;
+                // Case-insensitive comparison for prefix
+                if (!group.name.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase)) continue;
+
+                var schema = group.GetSchema<BundledAssetGroupSchema>();
+                if (schema == null) continue;
+
+                if (schema.IncludeInBuild != include)
+                {
+                    schema.IncludeInBuild = include;
+                    EditorUtility.SetDirty(schema);
+                    Debug.Log($"[Addressables] Group '{group.name}' IncludeInBuild = {include}");
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+        }
+
+        // Entry point for CI/CD conditional build (same as BuildAddressable now)
+        public static void BuildConditional()
+        {
+            Debug.Log("[Addressables] Starting conditional build from CI/CD...");
+            BuildAddressable();
         }
     }
 }
