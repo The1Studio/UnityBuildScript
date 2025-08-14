@@ -18,7 +18,7 @@ A comprehensive Unity build automation package that provides command-line and me
 
 1. Open Unity Package Manager (Window → Package Manager)
 2. Click "+" → Add package from git URL
-3. Enter: `https://github.com/The1Studio/UnityBuildScript.git#upm/v1.1.0`
+3. Enter: `https://github.com/The1Studio/UnityBuildScript.git#upm/v1.2.1`
 
 ### Via UPM Registry
 
@@ -26,7 +26,7 @@ Add to your `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.theone.foundation.buildscript": "1.1.0"
+    "com.theone.foundation.buildscript": "1.2.1"
   },
   "scopedRegistries": [
     {
@@ -119,26 +119,42 @@ The package automatically configures Addressables for production builds:
 - Compression settings per platform
 - Build path customization
 
-### Conditional Addressable Groups
+### Conditional Addressable Groups (v1.2.1+)
 
-New schema-based conditional inclusion/exclusion of addressable groups:
+**Schema-based conditional inclusion/exclusion of addressable groups.**
+
+Starting from v1.2.1, conditional addressable groups are controlled exclusively through schemas, not by group name prefixes.
 
 #### IncludeInBuildWithSymbolSchema
 Add this schema to a group to include it only when specific scripting define symbols are set:
 - Add multiple symbols to check
-- Choose "Require All" or "Any" logic
+- Choose "Require All" (all symbols must be present) or "Any" (at least one symbol) logic
 - Group automatically included/excluded based on current defines
 
 #### ExcludeInBuildWithSymbolSchema
 Add this schema to a group to exclude it when specific scripting define symbols are set:
 - Add multiple symbols to check
-- Choose "Exclude If Any" or "All" logic
-- Inverse of IncludeInBuildWithSymbol
+- Choose "Exclude If Any" (exclude if any symbol present) or "All" (exclude only if all present) logic
+- Useful for excluding debug/test content from production builds
 
-Example use cases:
-- Include debug assets only in development builds
-- Exclude test content from production builds
-- Conditionally include platform-specific assets
+#### How to Use
+1. Select an Addressable Group in Unity
+2. In the Inspector, click "Add Schema"
+3. Choose either `IncludeInBuildWithSymbolSchema` or `ExcludeInBuildWithSymbolSchema`
+4. Configure the symbols in the schema settings
+5. The group will automatically be included/excluded during builds based on active symbols
+
+#### Example Use Cases
+- Include debug UI assets only when `DEBUG_UI` is defined
+- Exclude test levels when `PRODUCTION` is defined
+- Include platform-specific assets based on platform defines
+- Conditionally include developer tools based on `DEVELOPER_BUILD`
+
+#### Testing
+Use the test menu items under **Build → Test Conditional** to verify your setup:
+- **Show Current Symbol Status**: View all active symbols
+- **Test Build And Log Groups**: See which groups have schemas and their include/exclude state
+- **Simulate PRODUCTION Build**: Test with PRODUCTION symbol active
 
 ### Scripting Define Symbols
 

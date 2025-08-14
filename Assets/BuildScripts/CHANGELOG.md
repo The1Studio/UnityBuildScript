@@ -5,6 +5,30 @@ All notable changes to The One Unity Build Script package will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-01-14
+
+### Changed
+- **BREAKING**: Refactored conditional addressables from prefix-based to pure schema-based approach
+- Removed all hardcoded prefix logic for Debug/Creative/Editor groups
+- Groups now control their own inclusion exclusively via attached schemas
+- Simplified `ApplyConditionalBuildRules()` to only use schema-based rules
+- Removed `ToggleGroupsByNamePrefix()` method entirely
+
+### Added
+- Comprehensive test menu items for schema-based conditional builds
+- Test scenarios for PRODUCTION builds, Development builds, and symbol combinations
+- Group logging functionality to visualize schema attachments and states
+
+### Removed
+- Removed prefix-based conditional logic (Debug/Creative/Editor prefix checks)
+- Removed menu items for toggling specific group prefixes
+- Removed `conditionalAddressables` command-line flag
+
+### Migration Guide
+- Groups are no longer controlled by their name prefix
+- To control a group conditionally, attach either `IncludeInBuildWithSymbolSchema` or `ExcludeInBuildWithSymbolSchema`
+- Configure the symbols in the schema inspector to control when the group is included/excluded
+
 ## [1.2.0] - 2025-01-14
 
 ### Added
