@@ -143,34 +143,8 @@ namespace BuildScripts.Editor.Addressable
 
         public static void ApplyConditionalBuildRules()
         {
-            bool isProduction = BuildTools.IsDefineSet("PRODUCTION");
-            
-            // Check for specific defines or development build
-            bool includeDebug = EditorUserBuildSettings.development || BuildTools.IsDefineSet("INCLUDE_DEBUG_ASSETS");
-            bool includeCreative = BuildTools.IsDefineSet("INCLUDE_CREATIVE_ASSETS");
-            bool includeEditor = BuildTools.IsDefineSet("INCLUDE_EDITOR_ASSETS");
-
-            // In PRODUCTION, force exclude Debug and Creative groups regardless of other settings
-            if (isProduction)
-            {
-                includeDebug = false;
-                includeCreative = false;
-                includeEditor = false;
-                Debug.Log($"[Addressables Conditional Build] PRODUCTION build - forcing exclusion of Debug, Creative, and Editor groups");
-            }
-
-            // Apply conditional rules for different group prefixes
-            ToggleGroupsByNamePrefix("Debug", includeDebug);
-            ToggleGroupsByNamePrefix("Creative", includeCreative);
-            ToggleGroupsByNamePrefix("Editor", includeEditor);
-            
-            // Apply schema-based conditional rules
+            // Apply schema-based conditional rules only
             ApplySchemaBasedConditionalRules();
-
-            // Log the applied rules
-            Debug.Log($"[Addressables Conditional Build] Debug groups: {(includeDebug ? "Included" : "Excluded")}");
-            Debug.Log($"[Addressables Conditional Build] Creative groups: {(includeCreative ? "Included" : "Excluded")}");
-            Debug.Log($"[Addressables Conditional Build] Editor groups: {(includeEditor ? "Included" : "Excluded")}");
         }
 
         private static void ApplySchemaBasedConditionalRules()
@@ -182,70 +156,56 @@ namespace BuildScripts.Editor.Addressable
                 return;
             }
 
+            Debug.Log("[Addressables] Applying schema-based conditional rules...");
+            int modifiedCount = 0;
+
             foreach (var group in settings.groups)
             {
                 if (group == null) continue;
+
+                var bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
+                if (bundleSchema == null) continue;
+
+                bool? newIncludeState = null;
+                string reason = "";
 
                 // Check for IncludeInBuildWithSymbol schema
                 var includeSchema = group.GetSchema<IncludeInBuildWithSymbolSchema>();
                 if (includeSchema != null)
                 {
-                    var shouldInclude = includeSchema.ShouldIncludeInBuild();
-                    var bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
-                    if (bundleSchema != null && bundleSchema.IncludeInBuild != shouldInclude)
-                    {
-                        bundleSchema.IncludeInBuild = shouldInclude;
-                        EditorUtility.SetDirty(bundleSchema);
-                        Debug.Log($"[Addressables Symbol Schema] Group '{group.name}' IncludeInBuild = {shouldInclude} (based on IncludeInBuildWithSymbol)");
-                    }
+                    newIncludeState = includeSchema.ShouldIncludeInBuild();
+                    reason = "IncludeInBuildWithSymbol";
                 }
 
-                // Check for ExcludeInBuildWithSymbol schema
+                // Check for ExcludeInBuildWithSymbol schema (takes precedence if both exist)
                 var excludeSchema = group.GetSchema<ExcludeInBuildWithSymbolSchema>();
                 if (excludeSchema != null)
                 {
-                    var shouldInclude = excludeSchema.ShouldIncludeInBuild();
-                    var bundleSchema = group.GetSchema<BundledAssetGroupSchema>();
-                    if (bundleSchema != null && bundleSchema.IncludeInBuild != shouldInclude)
-                    {
-                        bundleSchema.IncludeInBuild = shouldInclude;
-                        EditorUtility.SetDirty(bundleSchema);
-                        Debug.Log($"[Addressables Symbol Schema] Group '{group.name}' IncludeInBuild = {shouldInclude} (based on ExcludeInBuildWithSymbol)");
-                    }
+                    newIncludeState = !excludeSchema.ShouldExcludeFromBuild();
+                    reason = "ExcludeInBuildWithSymbol";
                 }
-            }
 
-            AssetDatabase.SaveAssets();
-        }
-
-        public static void ToggleGroupsByNamePrefix(string prefix, bool include)
-        {
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
-            if (settings == null)
-            {
-                Debug.LogWarning("Addressables settings not found.");
-                return;
-            }
-
-            foreach (var group in settings.groups)
-            {
-                if (group == null) continue;
-                // Case-insensitive comparison for prefix
-                if (!group.name.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase)) continue;
-
-                var schema = group.GetSchema<BundledAssetGroupSchema>();
-                if (schema == null) continue;
-
-                if (schema.IncludeInBuild != include)
+                // Apply the change if needed
+                if (newIncludeState.HasValue && bundleSchema.IncludeInBuild != newIncludeState.Value)
                 {
-                    schema.IncludeInBuild = include;
-                    EditorUtility.SetDirty(schema);
-                    Debug.Log($"[Addressables] Group '{group.name}' IncludeInBuild = {include}");
+                    bundleSchema.IncludeInBuild = newIncludeState.Value;
+                    EditorUtility.SetDirty(bundleSchema);
+                    Debug.Log($"  Group '{group.name}': IncludeInBuild changed to {newIncludeState.Value} (via {reason})");
+                    modifiedCount++;
                 }
             }
 
-            AssetDatabase.SaveAssets();
+            if (modifiedCount > 0)
+            {
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[Addressables] Modified {modifiedCount} group(s) based on schema rules.");
+            }
+            else
+            {
+                Debug.Log("[Addressables] No groups modified - all groups already in correct state.");
+            }
         }
+
 
         // Entry point for CI/CD conditional build (same as BuildAddressable now)
         public static void BuildConditional()

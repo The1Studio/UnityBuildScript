@@ -127,54 +127,213 @@ public static class BuildMenu
 
     #endregion
     
-    [MenuItem("Build/Addressable/Build (with conditional rules)", priority = 1100)]
+    [MenuItem("Build/Addressable/Build (with schema rules)", priority = 1100)]
     private static void Build_Addressable_fresh()
     {
         AddressableBuildTool.BuildAddressable();
     }
 
-    [MenuItem("Build/Addressable/Toggle Debug Groups", priority = 1101)]
-    private static void Toggle_Debug_Groups()
-    {
-        bool isProduction = BuildTools.IsDefineSet("PRODUCTION");
-        bool includeDebug = EditorUserBuildSettings.development || BuildTools.IsDefineSet("INCLUDE_DEBUG_ASSETS");
-        
-        if (isProduction)
-        {
-            includeDebug = false;
-            Debug.Log("Debug groups forced to EXCLUDED (PRODUCTION mode)");
-        }
-        else
-        {
-            AddressableBuildTool.ToggleGroupsByNamePrefix("Debug", includeDebug);
-            Debug.Log($"Debug groups set to: {(includeDebug ? "Included" : "Excluded")}");
-        }
-    }
- 
-    [MenuItem("Build/Addressable/Toggle Creative Groups", priority = 1102)]
-    private static void Toggle_Creative_Groups()
-    {
-        bool isProduction = BuildTools.IsDefineSet("PRODUCTION");
-        bool includeCreative = BuildTools.IsDefineSet("INCLUDE_CREATIVE_ASSETS");
-        
-        if (isProduction)
-        {
-            includeCreative = false;
-            Debug.Log("Creative groups forced to EXCLUDED (PRODUCTION mode)");
-        }
-        else
-        {
-            AddressableBuildTool.ToggleGroupsByNamePrefix("Creative", includeCreative);
-            Debug.Log($"Creative groups set to: {(includeCreative ? "Included" : "Excluded")}");
-        }
-    }
-
-    [MenuItem("Build/Addressable/Apply Conditional Rules", priority = 1103)]
-    private static void Apply_Conditional_Rules()
+    [MenuItem("Build/Addressable/Apply Schema Rules", priority = 1101)]
+    private static void Apply_Schema_Rules()
     {
         AddressableBuildTool.ApplyConditionalBuildRules();
-        Debug.Log("Conditional rules applied based on current symbols");
+        Debug.Log("Schema-based conditional rules applied");
     }
+
+    #region Test Conditional Builds
+
+    [MenuItem("Build/Test Conditional/Simulate PRODUCTION Build", priority = 1200)]
+    private static void Test_Production_Build()
+    {
+        Debug.Log("========== TESTING PRODUCTION BUILD ==========");
+        
+        // Temporarily set PRODUCTION define
+        var target = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var originalDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(target);
+        
+        // Add PRODUCTION if not already present
+        if (!originalDefines.Contains("PRODUCTION"))
+        {
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(target, originalDefines + ";PRODUCTION");
+        }
+        
+        // Show current state
+        Debug.Log($"Current Defines: {PlayerSettings.GetScriptingDefineSymbolsForGroup(target)}");
+        Debug.Log($"Is PRODUCTION: {BuildTools.IsDefineSet("PRODUCTION")}");
+        Debug.Log($"Is Development: {EditorUserBuildSettings.development}");
+        
+        // Apply rules and show results
+        AddressableBuildTool.ApplyConditionalBuildRules();
+        
+        Debug.Log("========== TEST COMPLETE ==========");
+        Debug.Log("Note: PRODUCTION define was added. Remove it via 'Clear Test Defines' if needed.");
+    }
+
+    [MenuItem("Build/Test Conditional/Simulate Development Build", priority = 1201)]
+    private static void Test_Development_Build()
+    {
+        Debug.Log("========== TESTING DEVELOPMENT BUILD ==========");
+        
+        // Set development mode
+        EditorUserBuildSettings.development = true;
+        
+        // Remove PRODUCTION define if present
+        var target = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(target);
+        defines = defines.Replace("PRODUCTION;", "").Replace(";PRODUCTION", "").Replace("PRODUCTION", "");
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(target, defines);
+        
+        // Show current state
+        Debug.Log($"Current Defines: {PlayerSettings.GetScriptingDefineSymbolsForGroup(target)}");
+        Debug.Log($"Is PRODUCTION: {BuildTools.IsDefineSet("PRODUCTION")}");
+        Debug.Log($"Is Development: {EditorUserBuildSettings.development}");
+        
+        // Apply rules and show results
+        AddressableBuildTool.ApplyConditionalBuildRules();
+        
+        Debug.Log("========== TEST COMPLETE ==========");
+    }
+
+    [MenuItem("Build/Test Conditional/Test With Creative Assets", priority = 1202)]
+    private static void Test_With_Creative_Assets()
+    {
+        Debug.Log("========== TESTING WITH CREATIVE ASSETS ==========");
+        
+        var target = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(target);
+        
+        // Remove PRODUCTION and add INCLUDE_CREATIVE_ASSETS
+        defines = defines.Replace("PRODUCTION;", "").Replace(";PRODUCTION", "").Replace("PRODUCTION", "");
+        if (!defines.Contains("INCLUDE_CREATIVE_ASSETS"))
+        {
+            defines = string.IsNullOrEmpty(defines) ? "INCLUDE_CREATIVE_ASSETS" : defines + ";INCLUDE_CREATIVE_ASSETS";
+        }
+        
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(target, defines);
+        
+        // Show current state
+        Debug.Log($"Current Defines: {PlayerSettings.GetScriptingDefineSymbolsForGroup(target)}");
+        Debug.Log($"Include Creative: {BuildTools.IsDefineSet("INCLUDE_CREATIVE_ASSETS")}");
+        
+        // Apply rules and show results
+        AddressableBuildTool.ApplyConditionalBuildRules();
+        
+        Debug.Log("========== TEST COMPLETE ==========");
+    }
+
+    [MenuItem("Build/Test Conditional/Show Current Symbol Status", priority = 1203)]
+    private static void Show_Symbol_Status()
+    {
+        Debug.Log("========== CURRENT SYMBOL STATUS ==========");
+        
+        var target = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(target);
+        
+        Debug.Log($"Current Defines: {defines}");
+        Debug.Log($"Build Target Group: {target}");
+        Debug.Log($"Development Build: {EditorUserBuildSettings.development}");
+        Debug.Log("");
+        Debug.Log("Conditional Symbols:");
+        Debug.Log($"  PRODUCTION: {BuildTools.IsDefineSet("PRODUCTION")}");
+        Debug.Log($"  INCLUDE_DEBUG_ASSETS: {BuildTools.IsDefineSet("INCLUDE_DEBUG_ASSETS")}");
+        Debug.Log($"  INCLUDE_CREATIVE_ASSETS: {BuildTools.IsDefineSet("INCLUDE_CREATIVE_ASSETS")}");
+        Debug.Log($"  INCLUDE_EDITOR_ASSETS: {BuildTools.IsDefineSet("INCLUDE_EDITOR_ASSETS")}");
+        Debug.Log("");
+        Debug.Log("Note: Group inclusion is now determined by schema configurations on each group.");
+        Debug.Log("Groups with IncludeInBuildWithSymbolSchema or ExcludeInBuildWithSymbolSchema");
+        Debug.Log("will be included/excluded based on their configured symbols.");
+        
+        Debug.Log("========== END STATUS ==========");
+    }
+
+    [MenuItem("Build/Test Conditional/Clear All Test Defines", priority = 1204)]
+    private static void Clear_Test_Defines()
+    {
+        Debug.Log("========== CLEARING TEST DEFINES ==========");
+        
+        var target = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(target);
+        
+        // Remove test-related defines
+        var testDefines = new[] { "PRODUCTION", "INCLUDE_DEBUG_ASSETS", "INCLUDE_CREATIVE_ASSETS", "INCLUDE_EDITOR_ASSETS" };
+        
+        foreach (var define in testDefines)
+        {
+            defines = defines.Replace($"{define};", "").Replace($";{define}", "").Replace(define, "");
+        }
+        
+        // Clean up any double semicolons or trailing semicolons
+        defines = System.Text.RegularExpressions.Regex.Replace(defines, ";+", ";").Trim(';');
+        
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(target, defines);
+        EditorUserBuildSettings.development = false;
+        
+        Debug.Log($"Cleared defines. Current: {defines}");
+        Debug.Log($"Development mode: {EditorUserBuildSettings.development}");
+        
+        Debug.Log("========== CLEAR COMPLETE ==========");
+    }
+
+    [MenuItem("Build/Test Conditional/Test Build And Log Groups", priority = 1205)]
+    private static void Test_Build_And_Log_Groups()
+    {
+        Debug.Log("========== TESTING BUILD WITH GROUP LOGGING ==========");
+        
+        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+        if (settings == null)
+        {
+            Debug.LogError("Addressables settings not found!");
+            return;
+        }
+        
+        // Log all groups and their current state
+        Debug.Log($"Total Groups: {settings.groups.Count}");
+        foreach (var group in settings.groups)
+        {
+            if (group == null) continue;
+            
+            var bundleSchema = group.GetSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+            var includeSchema = group.GetSchema<IncludeInBuildWithSymbolSchema>();
+            var excludeSchema = group.GetSchema<ExcludeInBuildWithSymbolSchema>();
+            
+            if (bundleSchema != null)
+            {
+                string schemaInfo = "";
+                if (includeSchema != null) schemaInfo = " [Has IncludeSchema]";
+                if (excludeSchema != null) schemaInfo = " [Has ExcludeSchema]";
+                
+                Debug.Log($"  {group.name}: IncludeInBuild = {bundleSchema.IncludeInBuild}{schemaInfo}");
+            }
+        }
+        
+        Debug.Log("");
+        Debug.Log("Applying schema-based conditional rules...");
+        AddressableBuildTool.ApplyConditionalBuildRules();
+        
+        Debug.Log("");
+        Debug.Log("Groups after applying rules:");
+        foreach (var group in settings.groups)
+        {
+            if (group == null) continue;
+            
+            var bundleSchema = group.GetSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+            var includeSchema = group.GetSchema<IncludeInBuildWithSymbolSchema>();
+            var excludeSchema = group.GetSchema<ExcludeInBuildWithSymbolSchema>();
+            
+            if (bundleSchema != null)
+            {
+                string schemaInfo = "";
+                if (includeSchema != null) schemaInfo = " [Has IncludeSchema]";
+                if (excludeSchema != null) schemaInfo = " [Has ExcludeSchema]";
+                
+                Debug.Log($"  {group.name}: IncludeInBuild = {bundleSchema.IncludeInBuild}{schemaInfo}");
+            }
+        }
+        
+        Debug.Log("========== TEST COMPLETE ==========");
+    }
+
+    #endregion
 
 
 

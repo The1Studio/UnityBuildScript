@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: debug
+  m_Name: ebug
   m_EditorClassIdentifier: 
-  m_GroupName: debug
+  m_GroupName: ebug
   m_GUID: ecf975d62c552dae3b7c2bab87fa1983
   m_SerializeEntries: []
   m_ReadOnly: 0
@@ -21,3 +21,4 @@ MonoBehaviour:
     m_Schemas:
     - {fileID: 11400000, guid: 06b788545a175aebea6065f991c7fde1, type: 2}
     - {fileID: 11400000, guid: a349b93e5e1d94ed38e38a72da23ba73, type: 2}
+    - {fileID: 11400000, guid: 430bf266026a762ca9dcc209ad531680, type: 2}
