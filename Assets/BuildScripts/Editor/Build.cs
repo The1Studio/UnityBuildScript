@@ -340,7 +340,7 @@ public static class Build
 #if !UNITY_2022_1_OR_NEWER
         EditorUserBuildSettings.il2CppCodeGeneration = il2CppCodeGeneration;
 #endif
-#if PRODUCTION
+#if PRODUCTION || FORCE_STRIP_CODE_HIGH
         PlayerSettings.SetManagedStrippingLevel(platform.NamedBuildTarget, ManagedStrippingLevel.High);
         PlayerSettings.stripEngineCode = true;
 #else
