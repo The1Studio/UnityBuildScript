@@ -79,7 +79,7 @@ public static class Build
     };
 
     private static string[] SCENES                = FindEnabledEditorScenes();
-    private static bool     OptimizeBuildSie      = false;
+    private static bool     OptimizeBuildSize     = false;
     private static string   keyStoreFileName      = "the1_googleplay.keystore";
     private static string   keyStoreAliasName     = "theonestudio";
     private static string   keyStorePassword      = "tothemoon";
@@ -129,7 +129,7 @@ public static class Build
 
     public static void BuildFromCommandLine()
     {
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_6000_0_OR_NEWER
         AndroidExternalToolsSettings.gradlePath = null;
 #endif
         // Grab the CSV platforms string
@@ -164,7 +164,7 @@ public static class Build
                     buildAppBundle = true;
                     break;
                 case "-optimizeSize":
-                    OptimizeBuildSie = true;
+                    OptimizeBuildSize = true;
                     break;
                 case "-packageName":
                     packageName = args[++i];
