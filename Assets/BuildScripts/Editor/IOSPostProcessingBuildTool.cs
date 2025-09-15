@@ -148,13 +148,6 @@ namespace BuildScripts.Editor
             }
             #endif
 
-            // URL Scheme
-            var urlTypeArray   = rootDict.CreateArray("CFBundleURLTypes");
-            var urlTypeSubDict = urlTypeArray.AddDict();
-            var urlSchemeArray = urlTypeSubDict.CreateArray("CFBundleURLSchemes");
-            urlTypeSubDict.SetString("CFBundleURLName", PlayerSettings.applicationIdentifier);
-            urlSchemeArray.AddString(PlayerSettings.applicationIdentifier);
-
             // Write to file
             File.WriteAllText(plistPath, plist.WriteToString());
             Debug.Log($"onelog: IOSPostProcessingBuildTool End SetPlistConfig");
