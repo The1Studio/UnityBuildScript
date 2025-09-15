@@ -24,5 +24,8 @@
   },
   "keywords": [
     "Tools"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "https://upm.the1studio.org/"
+  }
 }
