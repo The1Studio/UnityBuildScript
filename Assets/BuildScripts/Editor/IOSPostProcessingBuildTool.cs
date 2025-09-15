@@ -252,6 +252,9 @@ namespace BuildScripts.Editor
             #if THEONE_IAP
             projectCapabilityManager.AddInAppPurchase();
             #endif
+			#if THEONE_AUTHENTICATION
+			projectCapabilityManager.AddKeychainSharing(System.Array.Empty<string>);
+   			#endif
             projectCapabilityManager.AddBackgroundModes(BackgroundModesOptions.RemoteNotifications);
             projectCapabilityManager.AddPushNotifications(false);
             projectCapabilityManager.WriteToFile();
