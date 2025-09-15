@@ -369,7 +369,7 @@ public static class Build
                 PlayerSettings.Android.minifyDebug         = true;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
 #if UNITY_2022_1_OR_NEWER
-                var il2CppCodeGeneration = OptimizeBuildSie ? Il2CppCodeGeneration.OptimizeSize : Il2CppCodeGeneration.OptimizeSpeed;
+                var il2CppCodeGeneration = OptimizeBuildSize ? Il2CppCodeGeneration.OptimizeSize : Il2CppCodeGeneration.OptimizeSpeed;
                 PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, il2CppCodeGeneration);
 #endif
                 break;
