@@ -253,7 +253,7 @@ namespace BuildScripts.Editor
             projectCapabilityManager.AddInAppPurchase();
             #endif
 			#if THEONE_AUTHENTICATION
-			projectCapabilityManager.AddKeychainSharing(System.Array.Empty<string>);
+			projectCapabilityManager.AddKeychainSharing(System.Array.Empty<string>());
    			#endif
             projectCapabilityManager.AddBackgroundModes(BackgroundModesOptions.RemoteNotifications);
             projectCapabilityManager.AddPushNotifications(false);
