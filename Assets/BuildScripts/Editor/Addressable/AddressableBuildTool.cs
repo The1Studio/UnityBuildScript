@@ -24,6 +24,11 @@ namespace BuildScripts.Editor.Addressable
             AddressableAssetSettings.CleanPlayerContent();
 #endif
 
+#if UNITY_WEBGL
+        SetAllGroupsToLZ4();
+#elif (PRODUCTION || LZMA)
+        SetAllGroupsToLZMA();
+#endif
             var setting = AddressableAssetSettingsDefaultObject.Settings;
 
             // Always apply conditional build rules based on symbols
@@ -47,7 +52,6 @@ namespace BuildScripts.Editor.Addressable
             setting.ActivePlayerDataBuilderIndex = setting.DataBuilders.IndexOf(buildScript);
 #endif
 #endif
-
             //Refresh
             EditorUtility.SetDirty(setting);
             AssetDatabase.SaveAssets();
