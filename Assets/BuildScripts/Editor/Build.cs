@@ -129,8 +129,8 @@ public static class Build
 
     public static void BuildFromCommandLine()
     {
-#if UNITY_ANDROID && !UNITY_6000_0_OR_NEWER
-        AndroidExternalToolsSettings.gradlePath = null;
+#if UNITY_ANDROID
+        AndroidExternalToolsSettings.Gradle.path = null;
 #endif
         // Grab the CSV platforms string
         var platforms = string.Join(";", Targets.Select(t => t.Platform));
