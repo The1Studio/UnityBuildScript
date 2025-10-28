@@ -53,7 +53,7 @@ public static class BuildMenu
     }
 
     [MenuItem("Build/Standalone/build Debug MNA (Scripts only) Windows 64bit IL2CPP (Slow)", priority = 1100)]
-    static void Build_DebugScriptsOnlyWin64()
+    private static void Build_DebugScriptsOnlyWin64()
     {
         BuildAndOpenLog(ScriptingImplementation.IL2CPP, BuildOptions.Development | BuildOptions.AllowDebugging | BuildOptions.BuildScriptsOnly, new[] { Build.PlatformWin64 }, "default.exe");
     }

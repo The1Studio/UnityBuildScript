@@ -54,18 +54,10 @@ namespace BuildScripts.Editor
         [PostProcessBuild(int.MaxValue)]
         public static void OnPostProcessBuild(BuildTarget buildTarget, string path)
         {
-            try
-            {
-                SetPlistConfig(path);
-                SetProjectConfig(path);
+            SetPlistConfig(path);
+            SetProjectConfig(path);
 
-                Debug.Log("onelog: IOSPostProcessingBuildTool OnPostProcessBuild Success");
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                throw;
-            }
+            Debug.Log("onelog: IOSPostProcessingBuildTool OnPostProcessBuild Success");
         }
 
         #region Main

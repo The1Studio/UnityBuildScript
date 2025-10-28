@@ -80,10 +80,15 @@ public static class Build
 
     private static string[] SCENES                = FindEnabledEditorScenes();
     private static bool     OptimizeBuildSize     = false;
+
+    // ⚠️ WARNING: These are EXAMPLE/DEFAULT values only - DO NOT use in production!
+    // Override these values via command-line arguments (-keyStoreFileName, -keyStorePassword, etc.)
+    // Never commit real production credentials to source control
     private static string   keyStoreFileName      = "the1_googleplay.keystore";
     private static string   keyStoreAliasName     = "theonestudio";
     private static string   keyStorePassword      = "tothemoon";
     private static string   keyStoreAliasPassword = "tothemoon";
+
     private static string   iosTargetOSVersion    = BuildScripts.Editor.BuildConstants.DEFAULT_IOS_TARGET_VERSION;
     private static string   iosSigningTeamId      = "";
 
@@ -95,8 +100,15 @@ public static class Build
 
     private static BuildTargetInfo[] GetBuildTargetInfoFromString(IEnumerable<string> platforms)
     {
-        return platforms.Select(platformText => Targets.Single(t => t.Platform == platformText))
-            .ToArray();
+        return platforms.Select(platformText =>
+        {
+            var target = Targets.SingleOrDefault(t => t.Platform == platformText);
+            if (target == null)
+            {
+                throw new ArgumentException($"Unknown platform: '{platformText}'. Valid platforms: {string.Join(", ", Targets.Select(t => t.Platform))}");
+            }
+            return target;
+        }).ToArray();
     }
 
     public static void SetScriptingDefineSymbols()
@@ -151,12 +163,14 @@ public static class Build
             switch (args[i])
             {
                 case "-platforms":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -platforms argument");
                     platforms = args[++i];
                     break;
                 case "-development":
                     buildOptions |= BuildOptions.Development;
                     break;
                 case "-outputPath":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -outputPath argument");
                     outputPath = args[++i];
                     break;
                 case "-buildAppBundle":
@@ -166,30 +180,39 @@ public static class Build
                     OptimizeBuildSize = true;
                     break;
                 case "-packageName":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -packageName argument");
                     packageName = args[++i];
                     break;
                 case "-keyStoreFileName":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -keyStoreFileName argument");
                     keyStoreFileName = args[++i];
                     break;
                 case "-keyStorePassword":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -keyStorePassword argument");
                     keyStorePassword = args[++i];
                     break;
                 case "-keyStoreAliasName":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -keyStoreAliasName argument");
                     keyStoreAliasName = args[++i];
                     break;
                 case "-keyStoreAliasPassword":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -keyStoreAliasPassword argument");
                     keyStoreAliasPassword = args[++i];
                     break;
                 case "-iosTargetOSVersion":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -iosTargetOSVersion argument");
                     iosTargetOSVersion = args[++i];
                     break;
                 case "-iosSigningTeamId":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -iosSigningTeamId argument");
                     iosSigningTeamId = args[++i];
                     break;
                 case "-remoteAddressableBuildPath":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -remoteAddressableBuildPath argument");
                     remoteAddressableBuildPath = args[++i];
                     break;
                 case "-remoteAddressableLoadPath":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -remoteAddressableLoadPath argument");
                     remoteAddressableLoadPath = args[++i];
                     break;
             }
@@ -226,18 +249,18 @@ public static class Build
         string keyStorePass = "tothemoon", string keyaliasName = "theonestudio",
         string keyaliasPass = "tothemoon")
     {
-        Console.WriteLine("-----Setup android keystore-----");
-        Console.WriteLine($"keystore file name: {keyStoreFileName}");
-        Console.WriteLine($"keystore file pass: {keyStorePass}");
-        Console.WriteLine($"keystore alias name: {keyaliasName}");
-        Console.WriteLine($"keystore alias pass: {keyaliasPass}");
+        Debug.Log("-----Setup android keystore-----");
+        Debug.Log($"keystore file name: {keyStoreFileName}");
+        Debug.Log($"keystore file pass: {keyStorePass}");
+        Debug.Log($"keystore alias name: {keyaliasName}");
+        Debug.Log($"keystore alias pass: {keyaliasPass}");
 
         PlayerSettings.Android.useCustomKeystore = true;
         PlayerSettings.Android.keystoreName      = keyStoreFileName;
         PlayerSettings.Android.keystorePass      = keyStorePass;
         PlayerSettings.Android.keyaliasName      = keyaliasName;
         PlayerSettings.Android.keyaliasPass      = keyaliasPass;
-        Console.WriteLine("-----Setup android keystore finished-----");
+        Debug.Log("-----Setup android keystore finished-----");
     }
 
     public static void BuildInternal(ScriptingImplementation scriptBackend, BuildOptions options,
@@ -250,7 +273,7 @@ public static class Build
         BuildTools.ResetBuildSettings();
 
         var buildTargetInfos = GetBuildTargetInfoFromString(platforms);
-        Console.WriteLine("Building Targets: " +
+        Debug.Log("Building Targets: " +
                           string.Join(", ",
                               buildTargetInfos.Select(target => target.Platform)
                                   .ToArray())); // Log which targets we're gonna build
@@ -258,9 +281,9 @@ public static class Build
         var errors = false;
         foreach (var platform in buildTargetInfos)
         {
-            Console.WriteLine($"----------{new string('-', platform.Platform.Length)}");
-            Console.WriteLine($"Building: {platform.Platform}");
-            Console.WriteLine($"----------{new string('-', platform.Platform.Length)}");
+            Debug.Log($"----------{new string('-', platform.Platform.Length)}");
+            Debug.Log($"Building: {platform.Platform}");
+            Debug.Log($"----------{new string('-', platform.Platform.Length)}");
 
             if (!string.IsNullOrEmpty(packageName))
             {
@@ -328,10 +351,10 @@ public static class Build
             errors = errors || buildResult.summary.result != BuildResult.Succeeded;
         }
 
-        Console.WriteLine(errors ? "*** Some targets failed ***" : "All targets built successfully!");
+        Debug.Log(errors ? "*** Some targets failed ***" : "All targets built successfully!");
 
-        Console.WriteLine(new string('=', 80));
-        Console.WriteLine();
+        Debug.Log(new string('=', 80));
+        Debug.Log("");
     }
 
     private static void SpecificActionForEachPlatform(BuildTargetInfo platform)
