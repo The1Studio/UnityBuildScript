@@ -83,7 +83,8 @@ public static class BuildTools
     {
         PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(targetGroup), out var defines);
         // Use exact match to avoid partial matches (e.g., "PROD" matching "PRODUCTION")
-        return defines.Split(';').Any(d => d == define);
+        // Note: defines is already a string[] from GetScriptingDefineSymbols
+        return defines.Any(d => d == define);
     }
 
     /// <summary>
@@ -111,7 +112,8 @@ public static class BuildTools
     {
         var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
         // Use exact match to avoid partial matches
-        if (!defines.Split(';').Any(d => d == symbol))
+        // Note: GetScriptingDefineSymbolsForGroup returns a semicolon-separated string
+        if (!defines.Split(';').Contains(symbol))
         {
             defines = string.IsNullOrEmpty(defines) ? symbol : defines + ";" + symbol;
             PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, defines);
