@@ -129,7 +129,7 @@ namespace BuildScripts.Editor.Addressable
             var profileId   = settings.profileSettings.GetProfileId(profileName);
 
             // If the profile does not exist, create it
-            if (string.IsNullOrEmpty(profileId)) ;
+            if (string.IsNullOrEmpty(profileId))
             {
                 profileId = settings.profileSettings.AddProfile(profileName, "Default");
             }

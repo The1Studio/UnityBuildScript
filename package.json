@@ -2,7 +2,7 @@
   "name": "com.theone.foundation.buildscript",
   "displayName": "The One Unity Build Script",
   "description": "Unity build script that use to build for multiple platform.",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "unity": "2022.3",
   "license": "MIT",
   "repository": {
@@ -17,7 +17,7 @@
   "documentationUrl": "https://github.com/The1Studio/UnityBuildScript/blob/master/README.md",
   "licensesUrl": "https://github.com/The1Studio/UnityBuildScript/blob/master/LICENSE",
   "_upm": {
-    "changelog": "### [1.2.10] - 2025-01-16\n- Fixed addressable compression mode configuration\n- Moved compression logic before setting initialization\n- Ensures proper LZ4 (WebGL) and LZMA (Production) compression\n\n### [1.2.4] - 2025-01-15\n- Added inline changelog in package.json for Unity Package Manager\n- Recent version history now visible directly in Package Manager UI\n\n### [1.2.3] - 2025-01-15\n- Added Unity Package Manager documentation links (changelog, documentation, license)\n- Fixed changelog visibility in Package Manager UI\n\n### [1.2.2] - 2025-01-15\n- Added FORCE_STRIP_CODE_HIGH symbol for forcing high managed stripping level\n- Enables size optimization testing without full production settings"
+    "changelog": "### [1.2.11] - 2025-10-28\n- Fixed critical bug: Removed semicolon after if statement in CreateOrUpdateTheOneCDNProfile\n- Added ConditionalBuildSchemaBase abstract base class for conditional schemas\n- Added BuildConstants class for centralized constants and paths\n- Added BuildTools helper methods: RemoveDefineSymbol, AddDefineSymbol, RemoveDefineSymbols, AreAllDefinesSet, IsAnyDefineSet\n- Refactored IncludeInBuildWithSymbolSchema to extend base class (113→56 lines)\n- Refactored ExcludeInBuildWithSymbolSchema to extend base class (118→62 lines)\n- Eliminated ~150-180 lines of duplicated code across the codebase\n\n### [1.2.10] - 2025-01-16\n- Fixed addressable compression mode configuration\n- Moved compression logic before setting initialization\n- Ensures proper LZ4 (WebGL) and LZMA (Production) compression\n\n### [1.2.4] - 2025-01-15\n- Added inline changelog in package.json for Unity Package Manager\n- Recent version history now visible directly in Package Manager UI\n\n### [1.2.3] - 2025-01-15\n- Added Unity Package Manager documentation links (changelog, documentation, license)\n- Fixed changelog visibility in Package Manager UI"
   },
   "dependencies": {
     "com.unity.addressables": "1.22.2"

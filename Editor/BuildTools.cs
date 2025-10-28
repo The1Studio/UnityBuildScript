@@ -72,4 +72,57 @@ public static class BuildTools
         PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(targetGroup), out var defines);
         return defines.Contains(define);
     }
+
+    public static void RemoveDefineSymbol(BuildTargetGroup targetGroup, string symbol)
+    {
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+        defines = defines.Replace($"{symbol};", "")
+                         .Replace($";{symbol}", "")
+                         .Replace(symbol, "");
+        defines = System.Text.RegularExpressions.Regex.Replace(defines, ";+", ";").Trim(';');
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, defines);
+    }
+
+    public static void AddDefineSymbol(BuildTargetGroup targetGroup, string symbol)
+    {
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+        if (!defines.Contains(symbol))
+        {
+            defines = string.IsNullOrEmpty(defines) ? symbol : defines + ";" + symbol;
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, defines);
+        }
+    }
+
+    public static void RemoveDefineSymbols(BuildTargetGroup targetGroup, params string[] symbols)
+    {
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+        foreach (var symbol in symbols)
+        {
+            defines = defines.Replace($"{symbol};", "")
+                             .Replace($";{symbol}", "")
+                             .Replace(symbol, "");
+        }
+        defines = System.Text.RegularExpressions.Regex.Replace(defines, ";+", ";").Trim(';');
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, defines);
+    }
+
+    public static bool AreAllDefinesSet(System.Collections.Generic.IEnumerable<string> symbols)
+    {
+        foreach (var symbol in symbols)
+        {
+            if (!string.IsNullOrWhiteSpace(symbol) && !IsDefineSet(symbol))
+                return false;
+        }
+        return true;
+    }
+
+    public static bool IsAnyDefineSet(System.Collections.Generic.IEnumerable<string> symbols)
+    {
+        foreach (var symbol in symbols)
+        {
+            if (!string.IsNullOrWhiteSpace(symbol) && IsDefineSet(symbol))
+                return true;
+        }
+        return false;
+    }
 }

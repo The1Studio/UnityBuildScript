@@ -5,6 +5,33 @@ All notable changes to The One Unity Build Script package will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.11] - 2025-10-28
+
+### Fixed
+- Critical bug in AddressableBuildTool.cs: Removed semicolon after if statement in CreateOrUpdateTheOneCDNProfile method that prevented profile creation
+
+### Added
+- New `ConditionalBuildSchemaBase` abstract base class for conditional addressable schemas
+- New `BuildConstants` class centralizing magic numbers, paths, and constants
+- `BuildTools.RemoveDefineSymbol()` helper method for removing individual scripting define symbols
+- `BuildTools.AddDefineSymbol()` helper method for adding individual scripting define symbols
+- `BuildTools.RemoveDefineSymbols()` helper method for removing multiple scripting define symbols
+- `BuildTools.AreAllDefinesSet()` helper method for checking if all symbols in a list are defined
+- `BuildTools.IsAnyDefineSet()` helper method for checking if any symbol in a list is defined
+
+### Changed
+- `IncludeInBuildWithSymbolSchema` now extends `ConditionalBuildSchemaBase` (reduced from 113 to 56 lines)
+- `ExcludeInBuildWithSymbolSchema` now extends `ConditionalBuildSchemaBase` (reduced from 118 to 62 lines)
+- Refactored `Build.GetBuildTargetInfoFromString()` to use BuildConstants and added GetLogFileName() helper
+- Refactored all 12 build menu methods in `BuildMenu.cs` to use new `BuildAndOpenLog()` helper
+- Eliminated approximately 150-180 lines of duplicated code across the codebase
+
+### Improved
+- Better maintainability through centralized constants and shared base classes
+- Consistent log file naming and path handling via BuildConstants
+- Reduced code duplication in conditional schema OnGUI rendering
+- More reusable helper methods for scripting define symbol management
+
 ## [1.2.4] - 2025-01-15
 
 ### Added

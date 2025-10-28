@@ -84,14 +84,13 @@ public static class Build
     private static string   keyStoreAliasName     = "theonestudio";
     private static string   keyStorePassword      = "tothemoon";
     private static string   keyStoreAliasPassword = "tothemoon";
-    private static string   iosTargetOSVersion    = "13.0";
+    private static string   iosTargetOSVersion    = BuildScripts.Editor.BuildConstants.DEFAULT_IOS_TARGET_VERSION;
     private static string   iosSigningTeamId      = "";
 
 
     private static BuildTargetInfo[] GetBuildTargetInfoFromString(string platforms)
     {
-        return platforms.Split(';').Select(platformText => Targets.Single(t => t.Platform == platformText))
-            .ToArray();
+        return GetBuildTargetInfoFromString(platforms.Split(';'));
     }
 
     private static BuildTargetInfo[] GetBuildTargetInfoFromString(IEnumerable<string> platforms)
@@ -421,11 +420,16 @@ public static class Build
     private static string[] FindEnabledEditorScenes() =>
         (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
 
+    public static string GetLogFileName(string platform)
+    {
+        return $"{BuildScripts.Editor.BuildConstants.LOG_FILE_PREFIX}.{platform}{BuildScripts.Editor.BuildConstants.LOG_FILE_EXTENSION}";
+    }
+
     private static void WriteReport(BuildReport report)
     {
-        Directory.CreateDirectory("../Build/Logs");
+        Directory.CreateDirectory(BuildScripts.Editor.BuildConstants.BUILD_LOGS_PATH);
         var platform = Targets.SingleOrDefault(t => t.BuildTarget == report.summary.platform)?.Platform ?? "unknown";
-        var filePath = $"../Build/Logs/Build-Client-Report.{platform}.log";
+        var filePath = $"{BuildScripts.Editor.BuildConstants.BUILD_LOGS_PATH}/{GetLogFileName(platform)}";
         var summary  = report.summary;
         using (var file = new StreamWriter(filePath))
         {
