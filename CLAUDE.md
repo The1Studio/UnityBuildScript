@@ -3,7 +3,9 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-This is The One Unity Build Script - a Unity Package Manager (UPM) package that provides automated build functionality for Unity projects across multiple platforms (Windows, Mac, Android, iOS, WebGL). Version 1.0.10, requires Unity 2022.3+.
+This is The One Unity Build Script - a Unity Package Manager (UPM) package that provides automated build functionality for Unity projects across multiple platforms (Windows, Mac, Android, iOS, WebGL). Version 1.2.10, requires Unity 2022.3+.
+
+**Package Structure:** This repository is a standalone UPM package (not a Unity project). Install it in Unity via Package Manager using Git URL or by adding to manifest.json.
 
 ## Critical Commands
 
@@ -49,18 +51,18 @@ Menu items are under `Foundation/Build/`:
 # Check for Unity compilation errors (requires Unity MCP)
 mcp__UnityMCP__read_console
 
-# Verify project structure
-ls -la Assets/BuildScripts/Editor/
+# Verify package structure
+ls -la Editor/
 ```
 
 ## Architecture & Key Components
 
-### Core Build System (`Assets/BuildScripts/Editor/`)
-- **Build.cs**: Main orchestrator with `BuildFromCommandLine()` entry point and platform configurations
-- **BuildMenu.cs**: Unity Editor menu integration for GUI-based builds
-- **BuildTools.cs**: Utility functions for build settings and assembly management
-- **AddressableBuildTool.cs**: Addressables with CDN support and compression modes
-- **IOSPostProcessingBuildTool.cs**: Xcode project configuration and Swift settings
+### Core Build System (`Editor/`)
+- **Build.cs**: Main orchestrator with `BuildFromCommandLine()` entry point and platform configurations (Editor/Build.cs)
+- **BuildMenu.cs**: Unity Editor menu integration for GUI-based builds (Editor/BuildMenu.cs)
+- **BuildTools.cs**: Utility functions for build settings and assembly management (Editor/BuildTools.cs)
+- **AddressableBuildTool.cs**: Addressables with CDN support and compression modes (Editor/Addressable/AddressableBuildTool.cs)
+- **IOSPostProcessingBuildTool.cs**: Xcode project configuration and Swift settings (Editor/IOSPostProcessingBuildTool.cs)
 
 ### Command-Line Arguments
 - `-platforms`: Target platforms (win32/win64/osx/android/ios/webgl), semicolon-separated for multiple
