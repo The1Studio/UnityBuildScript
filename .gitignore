@@ -23,3 +23,6 @@ Thumbs.db
 
 # Serena MCP
 .serena/
+
+# Serena MCP project cache
+.serena/
