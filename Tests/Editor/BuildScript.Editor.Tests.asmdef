@@ -1,0 +1,26 @@
+{
+    "name": "BuildScript.Editor.Tests",
+    "rootNamespace": "BuildScript.Editor.Tests",
+    "references": [
+        "BuildScript.Editor",
+        "BuildScript.Runtime",
+        "Unity.Addressables.Editor",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
