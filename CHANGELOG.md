@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 🤖 Calling Gemini API (attempt 1/3)...
+🤖 Calling Gemini API (attempt 1/3)...
+## [1.2.17] - 2025-11-12
+### Fixed
+- Resolved issue preventing Discord notifications from sending correctly.
+
 ## [1.2.16] - 2025-11-12
 ### Fixed
 - Correctly identify files during build process.
