@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 🤖 Calling Gemini API (attempt 1/3)...
 🤖 Calling Gemini API (attempt 1/3)...
+## [1.2.18] - 2025-11-12
+### Fixed
+- Correctly generate CHANGELOG.md files during package release.
+
 ## [1.2.17] - 2025-11-12
 ### Fixed
 - Resolved issue preventing Discord notifications from sending correctly.
