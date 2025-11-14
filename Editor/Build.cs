@@ -138,6 +138,44 @@ public static class Build
         }
     }
 
+    /// <summary>
+    /// Build addressables only, without building the Unity player.
+    /// This is useful for CI/CD pipelines that want to build addressables separately.
+    /// </summary>
+    public static void BuildAddressablesOnly()
+    {
+        var args = Environment.GetCommandLineArgs();
+        var remoteAddressableBuildPath = "";
+        var remoteAddressableLoadPath  = "";
+
+        // Parse addressables-specific arguments
+        for (var i = 0; i < args.Length; ++i)
+        {
+            switch (args[i])
+            {
+                case "-remoteAddressableBuildPath":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -remoteAddressableBuildPath argument");
+                    remoteAddressableBuildPath = args[++i];
+                    break;
+                case "-remoteAddressableLoadPath":
+                    if (i + 1 >= args.Length) throw new ArgumentException("Missing value for -remoteAddressableLoadPath argument");
+                    remoteAddressableLoadPath = args[++i];
+                    break;
+            }
+        }
+
+        // Configure remote CDN profile if provided
+        if (!string.IsNullOrEmpty(remoteAddressableBuildPath) && !string.IsNullOrEmpty(remoteAddressableLoadPath))
+        {
+            AddressableBuildTool.CreateOrUpdateTheOneCDNProfile(remoteAddressableBuildPath, remoteAddressableLoadPath);
+        }
+
+        // Build addressables
+        AddressableBuildTool.BuildAddressable();
+
+        Debug.Log("Addressables build completed successfully!");
+    }
+
     public static void BuildFromCommandLine()
     {
 #if UNITY_ANDROID
@@ -156,6 +194,11 @@ public static class Build
         var packageName                = "";
         var remoteAddressableBuildPath = "";
         var remoteAddressableLoadPath  = "";
+
+        // NOTE: BuildFromCommandLine now ALWAYS skips addressables by default
+        // Use Build.BuildAddressablesOnly() to build addressables separately
+        // Full build = BuildAddressablesOnly() + BuildFromCommandLine()
+        var skipAddressables           = true;
 
         PlayerSettings.Android.useCustomKeystore = false;
         for (var i = 0; i < args.Length; ++i)
@@ -236,7 +279,7 @@ public static class Build
         var scriptBackend = ScriptingImplementation.Mono2x;
 #endif
         BuildInternal(scriptBackend, buildOptions, platforms.Split(";"), outputPath,
-            buildAppBundle, packageName);
+            buildAppBundle, packageName, skipAddressables);
     }
 
     private static void SetupIos(string teamId, string targetOSVersion)
@@ -265,7 +308,7 @@ public static class Build
 
     public static void BuildInternal(ScriptingImplementation scriptBackend, BuildOptions options,
         IEnumerable<string> platforms, string outputPath,
-        bool buildAppBundle = false, string packageName = "")
+        bool buildAppBundle = false, string packageName = "", bool skipAddressables = false)
     {
 #if DEEP_PROFILING
             options |= BuildOptions.EnableDeepProfilingSupport;
@@ -331,7 +374,15 @@ public static class Build
             }
 #endif //UNITY_ANDROID
 
-            AddressableBuildTool.BuildAddressable();
+            // Build addressables unless explicitly skipped
+            if (!skipAddressables)
+            {
+                AddressableBuildTool.BuildAddressable();
+            }
+            else
+            {
+                Debug.Log("[Build] Skipping addressables build (skipAddressables flag set)");
+            }
 
             // Set up the build options
             if (platform.Platform.Equals(PlatformWebGL))

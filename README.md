@@ -42,11 +42,24 @@ Add to your `Packages/manifest.json`:
 
 ### Command Line Build
 
+**Important:** The build system uses two separate commands:
+1. `Build.BuildAddressablesOnly` - Build addressables
+2. `Build.BuildFromCommandLine` - Build player (always skips addressables)
+
+For a **full build**, run both commands!
+
 ```bash
-# Basic Windows build
+# Player build only (addressables NOT included)
 Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "win64"
 
-# Android AAB with signing
+# Addressables build only
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly
+
+# FULL BUILD: Addressables + Player
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "win64"
+
+# Android AAB (player only)
 Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine \
   -platforms "android" \
   -buildAppBundle \
@@ -55,7 +68,7 @@ Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine 
   -keyStoreAliasName "alias" \
   -keyStoreAliasPassword "aliaspass"
 
-# Multiple platforms
+# Multiple platforms (player only)
 Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine \
   -platforms "win64;android;ios"
 ```
@@ -111,13 +124,78 @@ Available options:
 
 ## Advanced Features
 
+### Build/Addressables Separation (v1.2.20+)
+
+**NEW: Two separate build commands for optimized CI/CD workflows!**
+
+#### Two Commands, Not Three
+
+1. **BuildAddressablesOnly** - Build addressables only
+2. **BuildFromCommandLine** - Build player only (always skips addressables)
+3. **Full Build = Both commands in sequence**
+
+```bash
+# Addressables only
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly
+
+# Player only
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "android"
+
+# Full build (both commands)
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "android"
+```
+
+With remote CDN:
+```bash
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly \
+  -remoteAddressableBuildPath "ServerData/[BuildTarget]" \
+  -remoteAddressableLoadPath "https://cdn.example.com/[BuildTarget]"
+```
+
+### When to Use Each Command
+
+| Command | Best For | Build Time | Example Use Case |
+|---------|----------|------------|------------------|
+| **BuildAddressablesOnly** | Content updates, asset changes | Fastest (1-5 min) | New levels, textures, configs |
+| **BuildFromCommandLine** | Code changes, app updates | Medium (5-15 min) | Bug fixes, new features |
+| **Both (Full Build)** | Major releases, first deployment | Longest (6-20 min) | v1.0.0 release with code + assets |
+
+### CI/CD Optimization Examples
+
+#### Content-Only Update (No App Store Submission)
+```bash
+# Build only addressables
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly \
+  -remoteAddressableBuildPath "ServerData/[BuildTarget]" \
+  -remoteAddressableLoadPath "https://cdn.example.com/[BuildTarget]"
+
+# Upload to CDN
+aws s3 sync ServerData/ s3://my-game-cdn/addressables/
+
+# Done! Users get new content without app update
+```
+
+#### Multi-Platform Builds (Parallel Execution)
+```bash
+# Build addressables once
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildAddressablesOnly
+
+# Build all platforms in parallel (all skip addressables automatically)
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "win64" &
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "android" &
+Unity -batchmode -quit -projectPath . -executeMethod Build.BuildFromCommandLine -platforms "ios" &
+wait
+```
+
 ### Addressables Configuration
 
 The package automatically configures Addressables for production builds:
 - Remote catalog support
 - CDN deployment ready
-- Compression settings per platform
+- Compression settings per platform (LZ4 for WebGL, LZMA for production)
 - Build path customization
+- Conditional group inclusion/exclusion
 
 ### Conditional Addressable Groups (v1.2.1+)
 

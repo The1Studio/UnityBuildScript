@@ -34,8 +34,9 @@ namespace BuildScripts.Editor.Addressable
             // Always apply conditional build rules based on symbols
             ApplyConditionalBuildRules();
 #if UNITY_6000_0_OR_NEWER
-            //TODO disable it when find a case that need to split APK
-            PlayerSettings.Android.splitApplicationBinary = false; // Disable split APK
+            // Always disable split APK/OBB (legacy approach)
+            // Modern alternatives: Use AAB (-buildAppBundle) or Play Asset Delivery (PAD)
+            PlayerSettings.Android.splitApplicationBinary = false;
 #if PAD
 #if ONDEMAND_ASSET
             PlayerSettings.Android.splitApplicationBinary = true;
