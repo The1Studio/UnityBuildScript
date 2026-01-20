@@ -304,7 +304,7 @@ public static class Build
 #endif // UNITY_IOS
 
 #if UNITY_ANDROID
-            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
 #if UNITY_6000_1_OR_NEWER
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
 #else
